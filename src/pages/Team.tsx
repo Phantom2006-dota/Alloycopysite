@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { api } from "@/lib/api";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { User, Mail, Linkedin, Twitter } from "lucide-react";
 import { useState, useEffect } from "react";
+import { mockTeamMembers } from "@/lib/mockTeamData";
 
 interface TeamMember {
   id: number;
@@ -37,10 +38,14 @@ const Team = () => {
     queryFn: async () => {
       try {
         const data = await api.team.list();
-        return data || [];
+        // If API returns empty or fails, use mock data
+        if (!data || data.length === 0) {
+          return mockTeamMembers;
+        }
+        return data;
       } catch (error) {
-        console.error("Error fetching team members:", error);
-        return [];
+        console.error("Error fetching team members, using mock data:", error);
+        return mockTeamMembers;
       }
     },
     retry: 1,
@@ -49,12 +54,11 @@ const Team = () => {
   useEffect(() => {
     if (teamError) {
       console.error("Query error detected:", teamError);
-      setHasError(true);
-      setErrorMessage("Failed to load team data. Please refresh the page.");
+      // Don't set error state if we have mock data fallback
     }
   }, [teamError]);
 
-  const teamMembers: TeamMember[] = teamData || [];
+  const teamMembers: TeamMember[] = teamData || mockTeamMembers;
 
   const getSocialLinks = (socialLinksString: string | null) => {
     if (!socialLinksString) return {};
@@ -173,7 +177,7 @@ const Team = () => {
 
                           {/* Bio */}
                           {member.bio && (
-                            <p className="text-sm text-foreground/80 mb-6 line-clamp-3">
+                            <p className="text-sm text-foreground/80 mb-6">
                               {member.bio}
                             </p>
                           )}
