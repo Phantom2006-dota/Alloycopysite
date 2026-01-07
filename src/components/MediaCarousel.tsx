@@ -61,7 +61,7 @@ const VideoSlide = ({ src, title, isActive }: { src: string; title: string; isAc
 
 // --- RECONSTRUCTED STATIC_ITEMS ARRAY ---
 const STATIC_ITEMS: MediaItem[] = [
-  // User's 4 New Images
+  // User's 4 New Images - These will be FILM only
   { id: 1, title: "User Film 1", src: "/image (1).jpg", type: "film", mediaType: "image" },
   { id: 2, title: "User TV 1", src: "/image (2).jpg", type: "tv", mediaType: "image" },
   { id: 3, title: "User Film 2", src: "/image (3).jpg", type: "film", mediaType: "image" },
@@ -113,9 +113,13 @@ const MediaCarousel = ({ type: filterType, forceStatic }: { type?: "book" | "fil
     ];
   };
 
-  // FINAL FILTERING LOGIC:
+  // UPDATED FILTERING LOGIC:
   const items = filterType 
-    ? STATIC_ITEMS.filter(item => item.type === filterType) // If filterType is set (e.g., 'book'), filter by type
+    ? filterType === "film" 
+      // For film section: only show images 1, 3 (films from images 1-4)
+      ? STATIC_ITEMS.filter(item => item.type === "film" && [1, 3].includes(item.id as number))
+      // For other sections (book/tv): filter normally but exclude images 1-4
+      : STATIC_ITEMS.filter(item => item.type === filterType && ![1, 2, 3, 4].includes(item.id as number))
     : getHomeItems(); // If no filterType (Home page), use custom ordered items
 
   const [currentIndex, setCurrentIndex] = useState(0);
