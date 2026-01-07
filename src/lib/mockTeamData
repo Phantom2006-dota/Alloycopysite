@@ -5,7 +5,7 @@ export const mockTeamMembers = [
     role: "Chairman",
     department: "Leadership",
     bio: "Olaseni Alaka is a multidisciplinary professional whose career bridges finance, education, publishing and cultural preservation. A Prince of Eko, with ancestral ties to Iga Idunganran (the Palace of the Oba of Lagos) and the Palace of the Olu of Sangotedo Kingdom, his work is deeply shaped by heritage, intellect, and a vision to reconnect Nigeria’s past with its creative future. Olaseni has previously worked with leading financial institutions such as Handelsbanken, Kleinwort Hambros, Lloyds, and Santander, and continues to bridge finance, education, and governance through his leadership at Bauhaus Education and his service as a trustee within the Quaker community.",
-    profilePhoto: null,
+    profilePhoto: "/team/olaseni.jpg",
     socialLinks: JSON.stringify({}),
     isActive: true,
     sortOrder: 1
@@ -27,7 +27,7 @@ export const mockTeamMembers = [
     role: "Project Management & Marketing",
     department: "Production",
     bio: "Zahra Hussnain contributes to Bauhaus Production Services through her project management and marketing expertise. She brings strong organisational capabilities to coordinating production workflows, managing timelines, and ensuring smooth project delivery across multiple initiatives. In her marketing capacity, Zahra supports content strategy development, audience engagement initiatives, and promotional campaign coordination.",
-    profilePhoto: null,
+    profilePhoto: "/team/zahra.jpg",
     socialLinks: JSON.stringify({}),
     isActive: true,
     sortOrder: 3
