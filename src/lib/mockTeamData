@@ -1,0 +1,48 @@
+export const mockTeamMembers = [
+  {
+    id: 1,
+    name: "Olaseni Alaka",
+    role: "Chairman",
+    department: "Leadership",
+    bio: "Olaseni Alaka is a multidisciplinary professional whose career bridges finance, education, publishing and cultural preservation. A Prince of Eko, with ancestral ties to Iga Idunganran (the Palace of the Oba of Lagos) and the Palace of the Olu of Sangotedo Kingdom, his work is deeply shaped by heritage, intellect, and a vision to reconnect Nigeria’s past with its creative future. Olaseni has previously worked with leading financial institutions such as Handelsbanken, Kleinwort Hambros, Lloyds, and Santander, and continues to bridge finance, education, and governance through his leadership at Bauhaus Education and his service as a trustee within the Quaker community.",
+    profilePhoto: null,
+    socialLinks: JSON.stringify({}),
+    isActive: true,
+    sortOrder: 1
+  },
+  {
+    id: 2,
+    name: "Akin Alaka",
+    role: "CEO, Bauhaus Production",
+    department: "Leadership",
+    bio: "Akin Alaka is a versatile creative professional with over 12 years of experience in print, radio, film, and television. As a Producer, Storyteller, Video Journalist, Screenwriter, and Documentary specialist, he brings a unique blend of creativity, technical expertise, and strategic insight to every project. Akin holds a Bachelor's Degree in Theatre Literature, History, and Criticism from the University of Ibadan, Nigeria, and a Master's Degree in Film and Television Producing from Aalto University Film School, Helsinki, Finland.",
+    profilePhoto: null,
+    socialLinks: JSON.stringify({}),
+    isActive: true,
+    sortOrder: 2
+  },
+  {
+    id: 3,
+    name: "Zahra Hussnain",
+    role: "Project Management & Marketing",
+    department: "Production",
+    bio: "Zahra Hussnain contributes to Bauhaus Production Services through her project management and marketing expertise. She brings strong organisational capabilities to coordinating production workflows, managing timelines, and ensuring smooth project delivery across multiple initiatives. In her marketing capacity, Zahra supports content strategy development, audience engagement initiatives, and promotional campaign coordination.",
+    profilePhoto: null,
+    socialLinks: JSON.stringify({}),
+    isActive: true,
+    sortOrder: 3
+  },
+  {
+    id: 4,
+    name: "Adewole A. Adeleke",
+    role: "Legal",
+    department: "Legal",
+    bio: "Adewole Adeleke graduated from the University of Lagos in 2000, where he obtained his LLB Degree. He was called to the Nigerian Bar in 2002. Adewole is a versatile Commercial lawyer with vast experience in Corporate Commercial Practice and Real Estate. He has successfully litigated highly complex cases from the High Court to the Supreme Court of Nigeria. He is MD/CEO of Corydon Property Co. Ltd and is on the Board of EM: 12:24 Nig Ltd.",
+    profilePhoto: null,
+    socialLinks: JSON.stringify({}),
+    isActive: true,
+    sortOrder: 4
+  }
+];
+
+
