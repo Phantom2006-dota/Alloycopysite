@@ -29,6 +29,7 @@ const navItems = [
       { name: "Books", path: "/books" },
       { name: "Publishing", path: "/publishing" },
       { name: "Foundation", path: "/foundation" },
+      { name: "Training", path: "/training" },
     ],
   },
   { name: "Shop", path: "/shop" },
