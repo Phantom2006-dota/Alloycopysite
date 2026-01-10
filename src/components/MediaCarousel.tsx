@@ -333,15 +333,15 @@ const MediaCarousel = ({ type: filterType, forceStatic }: { type?: "book" | "fil
       {/* Controls */}
       <div className="flex flex-col items-center gap-4 mt-12">
         {/* Dots Navigation */}
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-2 md:gap-3 max-w-full px-4 overflow-x-auto no-scrollbar">
           {items.map((_, index) => (
             <button
               key={index}
               onClick={() => scrollTo(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`flex-shrink-0 transition-all duration-300 ${
                 index === currentIndex
-                  ? "bg-primary scale-125"
-                  : "bg-foreground/30 hover:bg-foreground/50"
+                  ? "w-6 md:w-8 h-2 md:h-3 bg-primary rounded-full"
+                  : "w-2 md:w-3 h-2 md:h-3 rounded-full bg-foreground/30 hover:bg-foreground/50"
               }`}
               data-testid={`carousel-dot-${index}`}
               aria-label={`Go to slide ${index + 1}`}
