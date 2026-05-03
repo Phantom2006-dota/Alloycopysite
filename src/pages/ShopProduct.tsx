@@ -114,7 +114,7 @@ export default function ShopProduct() {
 
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             <div className="space-y-4">
-              <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
+              <div className="aspect-square relative bg-muted rounded-2xl overflow-hidden border shadow-sm">
                 {currentImage ? (
                   <img
                     src={currentImage}
@@ -156,7 +156,7 @@ export default function ShopProduct() {
               {product.category && (
                 <Link 
                   to={`/shop/${product.category.slug}`}
-                  className="text-sm text-amber-600 hover:text-amber-700"
+                    className="text-sm uppercase tracking-wide text-amber-600 hover:text-amber-700"
                 >
                   {product.category.name}
                 </Link>
@@ -200,7 +200,7 @@ export default function ShopProduct() {
               </div>
 
               {product.shortDescription && (
-                <p className="text-muted-foreground">{product.shortDescription}</p>
+                <p className="text-muted-foreground text-base leading-7">{product.shortDescription}</p>
               )}
 
               <Separator />
@@ -237,9 +237,9 @@ export default function ShopProduct() {
                 )}
                 <p className="text-sm text-muted-foreground">
                   <Link to="/contact" className="text-amber-600 hover:underline">
-                    Contact us
+                    Contact us via WhatsApp
                   </Link>{" "}
-                  for inquiries about this product.
+                  for availability, sizing, or provenance questions.
                 </p>
               </div>
 
@@ -261,7 +261,7 @@ export default function ShopProduct() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {related.map((item) => (
                   <Link key={item.id} to={`/shop/product/${item.slug}`}>
-                    <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-colors">
+                    <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-lg">
                       <div className="aspect-square relative bg-muted overflow-hidden">
                         {item.featuredImage ? (
                           <img

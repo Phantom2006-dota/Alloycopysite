@@ -61,11 +61,12 @@ export default function Shop() {
   return (
     <Layout>
       <div className="min-h-screen">
-        <section className="py-16 md:py-24 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <section className="py-16 md:py-24 bg-gradient-to-br from-amber-50 via-white to-stone-100 dark:from-amber-950/20 dark:via-background dark:to-stone-950/40 border-b">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-4">Shop</h1>
+            <p className="text-sm uppercase tracking-[0.3em] text-amber-700 mb-4">The Lagoon Cabinet</p>
+            <h1 className="text-4xl md:text-5xl font-serif mb-4">Curated Heritage Shop</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Discover our curated collection of books, merchandise, and cultural treasures
+              Authentic, provenance-led objects sourced from Nigerian makers and presented with clear descriptions, dimensions, and edition details.
             </p>
             <div className="max-w-md mx-auto relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -82,7 +83,10 @@ export default function Shop() {
         {categories.length > 0 && !searchQuery && (
           <section className="py-12 md:py-16">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl md:text-3xl font-serif mb-8 text-center">Shop by Category</h2>
+              <h2 className="text-2xl md:text-3xl font-serif mb-3 text-center">Shop by Category</h2>
+              <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-8">
+                Browse textiles, beads, household objects, and collector pieces with consistent provenance and presentation standards.
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {categories.map((category) => (
                   <Link
@@ -188,7 +192,7 @@ export default function Shop() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <Link key={product.id} to={`/shop/product/${product.slug}`}>
-                    <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-colors">
+                    <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-lg">
                       <div className="aspect-square relative bg-muted overflow-hidden">
                         {product.featuredImage ? (
                           <img
@@ -209,7 +213,7 @@ export default function Shop() {
                         )}
                       </div>
                       <CardContent className="p-4">
-                        <p className="text-xs text-amber-600 mb-1">{product.category?.name}</p>
+                        <p className="text-xs uppercase tracking-wide text-amber-600 mb-1">{product.category?.name}</p>
                         <h3 className="font-medium line-clamp-2 mb-2">{product.title}</h3>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-amber-600">{formatPrice(product.price)}</span>

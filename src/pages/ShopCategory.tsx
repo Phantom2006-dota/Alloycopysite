@@ -69,7 +69,7 @@ export default function ShopCategory() {
   return (
     <Layout>
       <div className="min-h-screen">
-        <section className="py-16 md:py-24 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <section className="py-16 md:py-24 bg-gradient-to-br from-amber-50 via-white to-stone-100 dark:from-amber-950/20 dark:via-background dark:to-stone-950/40 border-b">
           <div className="container mx-auto px-4">
             <Link to="/shop" className="inline-flex items-center text-amber-600 hover:text-amber-700 mb-6">
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -106,7 +106,7 @@ export default function ShopCategory() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {data.products.map((product) => (
                     <Link key={product.id} to={`/shop/product/${product.slug}`}>
-                      <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-colors">
+                      <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-lg">
                         <div className="aspect-square relative bg-muted overflow-hidden">
                           {product.featuredImage ? (
                             <img
@@ -127,6 +127,7 @@ export default function ShopCategory() {
                           )}
                         </div>
                         <CardContent className="p-4">
+                          <p className="text-xs uppercase tracking-wide text-amber-600 mb-1">{data.category?.name}</p>
                           <h3 className="font-medium line-clamp-2 mb-2">{product.title}</h3>
                           {product.shortDescription && (
                             <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
