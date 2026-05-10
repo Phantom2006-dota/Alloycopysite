@@ -27,12 +27,11 @@ router.get("/", async (_req, res: Response) => {
       isActive: productCategories.isActive,
       createdAt: productCategories.createdAt,
       updatedAt: productCategories.updatedAt,
-      // Use proper column references in SQL template
       productCount: sql<number>`
         (SELECT COUNT(*)::integer 
-         FROM ${products} 
-         WHERE ${products.categoryId} = ${productCategories.id} 
-         AND ${products.status} = 'published')
+         FROM products 
+         WHERE products.category_id = product_categories.id 
+         AND products.status = 'published')
       `.as('productCount')
     })
       .from(productCategories)
@@ -59,11 +58,10 @@ router.get("/admin/all", authenticateToken, requireRole("super_admin", "editor")
       isActive: productCategories.isActive,
       createdAt: productCategories.createdAt,
       updatedAt: productCategories.updatedAt,
-      // Admin counts ALL products
       productCount: sql<number>`
         (SELECT COUNT(*)::integer 
-         FROM ${products} 
-         WHERE ${products.categoryId} = ${productCategories.id})
+         FROM products 
+         WHERE products.category_id = product_categories.id)
       `.as('productCount')
     })
       .from(productCategories)
