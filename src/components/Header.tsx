@@ -47,7 +47,7 @@ const DropdownNavItem = ({ item, isActive }: { item: typeof navItems[number], is
     >
       <Link
         to={item.path}
-        className={`nav-link flex items-center gap-1 py-2 text-lg ${
+        className={`nav-link flex items-center gap-1 py-2 text-sm font-medium tracking-wide ${
           isActive(item.path) ? "text-foreground font-semibold" : "hover:text-foreground"
         }`}
       >
@@ -120,16 +120,16 @@ const Header = () => {
   return (
     <>
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
-        <nav className="mx-auto max-w-7xl px-6 py-4">
+        <nav className="mx-auto max-w-7xl px-4 md:px-6 py-2 md:py-3">
           <div className="flex items-center justify-between">
-            {/* Logo - Always on the left */}
+            {/* Logo */}
             <Link to="/" className="flex items-center">
-              <img src={currentLogo} alt={logoAlt} className="h-24 w-auto" />
+              <img src={currentLogo} alt={logoAlt} className="h-9 md:h-11 w-auto" />
             </Link>
 
-            {/* Desktop Navigation - Simplified */}
-            <div className="hidden md:flex items-center gap-10">
-              <ul className="flex items-center gap-8 lg:gap-10">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              <ul className="flex items-center gap-6 lg:gap-8">
                 {navItems.map((item) => {
                   if (item.dropdown) {
                     return (
@@ -144,7 +144,7 @@ const Header = () => {
                     <li key={item.path}>
                       <Link
                         to={item.path}
-                        className={`nav-link text-lg ${
+                        className={`nav-link text-sm font-medium tracking-wide ${
                           isActive(item.path) ? "text-foreground font-semibold" : "hover:text-foreground"
                         }`}
                       >
@@ -158,15 +158,15 @@ const Header = () => {
             </div>
 
             {/* Mobile Menu Button and Theme Toggle */}
-            <div className="md:hidden flex items-center gap-4">
+            <div className="md:hidden flex items-center gap-3">
               <ThemeToggle />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-foreground relative z-[60]"
+                className="p-1.5 text-foreground relative z-[60]"
                 data-testid="button-mobile-menu"
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               >
-                {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </div>

@@ -27,7 +27,7 @@ const Footer = () => {
             // Inverted to match the Header: dark theme uses light logo, light theme uses dark logo
             src={resolvedTheme === "dark" ? logoLight : logoDark}
             alt="Bauhaus Production"
-            className="h-20 w-auto opacity-80"
+            className="h-12 w-auto opacity-80"
           />
         </div>
 

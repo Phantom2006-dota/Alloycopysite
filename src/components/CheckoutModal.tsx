@@ -147,7 +147,7 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[425px] rounded-xl p-5 sm:p-6">
         <DialogHeader>
           <DialogTitle className="font-serif">Checkout</DialogTitle>
           <DialogDescription>
