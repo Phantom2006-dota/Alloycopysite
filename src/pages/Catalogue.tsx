@@ -1,0 +1,393 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import logoLight from "@/assets/light.png";
+import { Plus, Minus, ArrowRight, Globe, Bookmark } from "lucide-react";
+
+interface ProductCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+interface Product {
+  id: number;
+  title: string;
+  slug: string;
+  description: string | null;
+  shortDescription: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  featuredImage: string | null;
+  images: string | null;
+  isInStock: boolean;
+  isFeatured: boolean;
+  sku: string | null;
+  category?: ProductCategory | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+}
+
+const SIDEBAR_NAV = [
+  { label: "About The Lagoon", id: "about" },
+  { label: "Provenance", id: "provenance" },
+  { label: "Contact", id: "contact" },
+];
+
+const formatPrice = (cents: number) => {
+  const usd = cents / 100;
+  return `$${usd.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+};
+
+function AccordionRow({ label }: { label: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-t border-[#2a2a2a]">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full py-3 px-4 text-xs tracking-[0.15em] uppercase text-[#888] hover:text-white transition-colors"
+      >
+        <span>{label}</span>
+        {open ? <Minus size={12} /> : <Plus size={12} />}
+      </button>
+      {open && (
+        <div className="px-4 pb-3 text-xs text-[#666] leading-relaxed">
+          Information not available for this item.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductCard({ product, index }: { product: Product; index: number }) {
+  const images: string[] = (() => {
+    if (!product.images) return [];
+    try { return JSON.parse(product.images); } catch { return []; }
+  })();
+  const allImages = product.featuredImage
+    ? [product.featuredImage, ...images.filter(i => i !== product.featuredImage)]
+    : images;
+  const displayImages = allImages.slice(0, 2);
+
+  const num = String(index + 1).padStart(2, "0");
+
+  return (
+    <div className="border-t border-[#1e1e1e] py-10">
+      <div className="flex flex-col lg:flex-row gap-0">
+        {/* Images */}
+        <div className="w-full lg:w-[42%] flex-shrink-0">
+          <div className="grid grid-cols-2 gap-0.5">
+            {displayImages.length >= 2 ? (
+              <>
+                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                  <img src={displayImages[0]} alt={product.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                  <img src={displayImages[1]} alt={product.title} className="w-full h-full object-cover" />
+                </div>
+              </>
+            ) : displayImages.length === 1 ? (
+              <>
+                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                  <img src={displayImages[0]} alt={product.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="aspect-[3/4] bg-[#111] flex items-center justify-center">
+                  <span className="text-[#333] text-xs tracking-widest uppercase">No image</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="aspect-[3/4] bg-[#111] flex items-center justify-center">
+                  <span className="text-[#333] text-xs tracking-widest uppercase">No image</span>
+                </div>
+                <div className="aspect-[3/4] bg-[#0d0d0d]" />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="w-full lg:w-[58%] flex flex-col lg:pl-10 pt-6 lg:pt-0">
+          {/* Header row */}
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-[#555] text-xs tracking-widest">{num}</span>
+            <span className="text-[#555] text-[10px] tracking-[0.2em] uppercase">
+              {product.category?.name || "Uncategorised"}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h2 className="font-serif text-xl md:text-2xl text-white uppercase leading-tight tracking-wide mb-3">
+            {product.title}
+          </h2>
+
+          {/* Price + badge */}
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-white text-lg font-light">{formatPrice(product.price)}</span>
+            {!product.isInStock && (
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[#888] border border-[#333] px-2 py-0.5">
+                Out of Stock
+              </span>
+            )}
+            {product.isInStock && (
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[#888]">
+                Made to Order
+              </span>
+            )}
+          </div>
+
+          {/* Description */}
+          {(product.shortDescription || product.description) && (
+            <p className="text-[#888] text-xs leading-relaxed mb-6 max-w-md">
+              {product.shortDescription || product.description}
+            </p>
+          )}
+
+          {/* Specs table */}
+          <div className="mb-6 space-y-2">
+            {product.sku && (
+              <div className="flex gap-4 text-xs">
+                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">SKU</span>
+                <span className="text-[#aaa]">{product.sku}</span>
+              </div>
+            )}
+            {product.category && (
+              <div className="flex gap-4 text-xs">
+                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Category</span>
+                <span className="text-[#aaa]">{product.category.name}</span>
+              </div>
+            )}
+            {product.metaTitle && (
+              <div className="flex gap-4 text-xs">
+                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Origin</span>
+                <span className="text-[#aaa]">{product.metaTitle}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion sections */}
+          <div className="border-b border-[#2a2a2a] mb-6">
+            <AccordionRow label="Provenance" />
+            <AccordionRow label="Technique" />
+            <AccordionRow label="Historical Context" />
+            <AccordionRow label="Novel Excerpt" />
+            <AccordionRow label="Maker Story (Video)" />
+          </div>
+
+          {/* CTA buttons */}
+          <div className="flex items-center gap-3">
+            <a
+              href={`https://wa.me/234000000000?text=I'm interested in: ${encodeURIComponent(product.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-white text-black text-xs tracking-[0.15em] uppercase px-5 py-3 hover:bg-[#e0e0e0] transition-colors flex-1 justify-center"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Enquire on WhatsApp
+            </a>
+            <button className="flex items-center gap-1.5 border border-[#333] text-[#888] text-xs tracking-[0.12em] uppercase px-4 py-3 hover:border-white hover:text-white transition-colors">
+              <Bookmark size={12} />
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Catalogue() {
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const { data: categoriesData } = useQuery<ProductCategory[]>({
+    queryKey: ["catalogueCategories"],
+    queryFn: () => api.productCategories.list(),
+  });
+
+  const { data: productsData, isLoading } = useQuery<{ products: Product[]; pagination: any }>({
+    queryKey: ["catalogueProducts", activeCategory],
+    queryFn: () =>
+      api.products.list({
+        limit: 50,
+        category: activeCategory || undefined,
+      }),
+  });
+
+  const categories = categoriesData || [];
+  const products = productsData?.products || [];
+
+  const sidebarCategories = categories.map((cat, i) => ({
+    num: String(i + 1).padStart(2, "0"),
+    label: cat.name.toUpperCase(),
+    slug: cat.slug,
+  }));
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex">
+      {/* ── SIDEBAR ── */}
+      <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-[#0d0d0d] border-r border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
+        {/* Logo */}
+        <div className="p-6 pb-4 border-b border-[#1a1a1a]">
+          <img src={logoLight} alt="Bauhaus Production" className="w-16 mb-3" />
+          <p className="text-[10px] tracking-[0.3em] uppercase text-[#555]">Catalogue</p>
+        </div>
+
+        {/* Category nav */}
+        <nav className="flex-1 px-4 py-6">
+          {/* All */}
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={`block w-full text-left mb-5 group ${!activeCategory ? "opacity-100" : "opacity-50 hover:opacity-80"} transition-opacity`}
+          >
+            <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${!activeCategory ? "text-white font-semibold" : "text-[#555]"}`}>
+              00
+            </span>
+            <span className={`text-xs tracking-wide ${!activeCategory ? "text-white" : "text-[#888]"}`}>
+              All Objects
+            </span>
+          </button>
+
+          {sidebarCategories.map((cat) => (
+            <button
+              key={cat.slug}
+              onClick={() => setActiveCategory(cat.slug === activeCategory ? null : cat.slug)}
+              className={`block w-full text-left mb-5 group transition-opacity ${activeCategory === cat.slug ? "opacity-100" : "opacity-50 hover:opacity-80"}`}
+            >
+              <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${activeCategory === cat.slug ? "text-white font-semibold" : "text-[#555]"}`}>
+                {cat.num}
+              </span>
+              <span className={`text-xs tracking-wide leading-tight ${activeCategory === cat.slug ? "text-white font-medium" : "text-[#888]"}`}>
+                {cat.label}
+              </span>
+            </button>
+          ))}
+
+          <div className="mt-6 pt-6 border-t border-[#1a1a1a] space-y-4">
+            {SIDEBAR_NAV.map((item) => (
+              <button key={item.id} className="block w-full text-left text-[10px] tracking-[0.15em] uppercase text-[#444] hover:text-[#888] transition-colors">
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Footer */}
+        <div className="px-4 py-6 border-t border-[#1a1a1a]">
+          <p className="text-[10px] tracking-[0.15em] uppercase text-[#444] mb-2">Lagos, Nigeria</p>
+          <div className="flex items-center gap-1.5">
+            <Globe size={10} className="text-[#444]" />
+            <p className="text-[10px] tracking-[0.1em] uppercase text-[#444]">Global Delivery</p>
+          </div>
+          <p className="text-[10px] text-[#333] mt-0.5 tracking-widest">DHL / UPS</p>
+        </div>
+      </aside>
+
+      {/* ── MAIN CONTENT ── */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile header */}
+        <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-[#1a1a1a] bg-[#0d0d0d]">
+          <img src={logoLight} alt="Bauhaus Production" className="w-12" />
+          <p className="text-[10px] tracking-[0.3em] uppercase text-[#555]">Catalogue</p>
+        </div>
+
+        {/* Hero */}
+        <section className="px-6 lg:px-12 pt-12 pb-10 border-b border-[#1a1a1a]">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-[#666] mb-4">Bauhaus Production</p>
+          <h1 className="font-serif text-4xl md:text-5xl xl:text-6xl uppercase leading-none tracking-tight text-white mb-2">
+            Curated<br />Heritage<br />Objects
+          </h1>
+          <p className="text-xs tracking-[0.25em] uppercase text-[#555] mb-8">From the World of Eko</p>
+
+          {/* Category pills */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
+            {["All", ...categories.map(c => c.name)].map((cat, i) => {
+              const slug = i === 0 ? null : categories[i - 1]?.slug;
+              const isActive = i === 0 ? !activeCategory : activeCategory === slug;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(slug)}
+                  className={`text-[10px] tracking-[0.2em] uppercase transition-colors ${
+                    isActive ? "text-white" : "text-[#444] hover:text-[#888]"
+                  }`}
+                >
+                  {cat}
+                  {i < categories.length ? (
+                    <span className="ml-3 text-[#2a2a2a]">•</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+
+          <button className="flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-[#888] hover:text-white transition-colors group">
+            Explore the Catalogue
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </section>
+
+        {/* Products */}
+        <section className="flex-1 px-6 lg:px-12">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-24">
+              <div className="w-5 h-5 border border-[#333] border-t-white rounded-full animate-spin" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="py-24 text-center">
+              <p className="text-[#444] text-xs tracking-[0.2em] uppercase">No objects available</p>
+              <p className="text-[#333] text-xs mt-2">Check back soon or browse another category</p>
+            </div>
+          ) : (
+            products.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))
+          )}
+        </section>
+
+        {/* Trust bar */}
+        <section className="px-6 lg:px-12 py-8 border-t border-[#1a1a1a] grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[
+            { title: "Curated Goods", desc: "Every object is carefully selected and authenticated." },
+            { title: "Guaranteed Authenticity", desc: "Each item comes with a provenance card." },
+            { title: "Artisan Made", desc: "Sourced from master artisans across Nigeria." },
+            { title: "Global Delivery", desc: "Tracked & insured shipping worldwide." },
+          ].map((item) => (
+            <div key={item.title}>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-white mb-1">{item.title}</p>
+              <p className="text-[10px] text-[#555] leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* Footer bar */}
+        <footer className="px-6 lg:px-12 py-5 border-t border-[#1a1a1a] bg-[#0d0d0d] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#888] mb-0.5">The Lagoon Cabinet</p>
+            <p className="text-[9px] text-[#444] tracking-wide">Objects from the World of Eko</p>
+          </div>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-[9px] text-[#444] tracking-wide">
+            <span>Ships from Lagos, Nigeria</span>
+            <span className="hidden md:inline text-[#2a2a2a]">|</span>
+            <span>Processing time: 2–6 weeks</span>
+            <span className="hidden md:inline text-[#2a2a2a]">|</span>
+            <span>Returns: 14 days on stocked items</span>
+          </div>
+          <a
+            href="https://wa.me/234000000000"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-white text-black text-[10px] tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-[#e0e0e0] transition-colors"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Contact us via WhatsApp
+          </a>
+        </footer>
+      </div>
+    </div>
+  );
+}

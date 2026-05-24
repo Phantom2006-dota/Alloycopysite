@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import Shop from "./pages/Shop";
 import ShopCategory from "./pages/ShopCategory";
 import ShopProduct from "./pages/ShopProduct";
+import Catalogue from "./pages/Catalogue";
 
 import BlogList from "./pages/blog/BlogList";
 import BlogArticle from "./pages/blog/BlogArticle";
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:category" element={<ShopCategory />} />
               <Route path="/shop/product/:slug" element={<ShopProduct />} />
+              <Route path="/catalogue" element={<Catalogue />} />
               
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
