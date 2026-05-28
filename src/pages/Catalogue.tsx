@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
@@ -255,6 +255,17 @@ export default function Catalogue() {
   const logo = theme === "dark" ? logoDark : logoLight;
   const toggleTheme = () => setTheme(prev => prev === "dark" ? "light" : "dark");
 
+  useEffect(() => {
+    const html = document.documentElement;
+    const original = html.className;
+    if (theme === "dark") {
+      html.classList.add("dark");
+    } else {
+      html.classList.remove("dark");
+    }
+    return () => { html.className = original; };
+  }, [theme]);
+
   const { data: categoriesData } = useQuery<ProductCategory[]>({
     queryKey: ["catalogueCategories"],
     queryFn: () => api.productCategories.list(),
@@ -288,7 +299,6 @@ export default function Catalogue() {
   }));
 
   return (
-    <div className={theme === "dark" ? "dark" : ""}>
     <div className="min-h-screen flex bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white">
       {/* ── SIDEBAR ── */}
       <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-gray-50 dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
@@ -521,7 +531,6 @@ export default function Catalogue() {
           </a>
         </footer>
       </div>
-    </div>
     </div>
   );
 }
