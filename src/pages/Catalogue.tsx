@@ -288,7 +288,8 @@ export default function Catalogue() {
   }));
 
   return (
-    <div className={`min-h-screen flex ${theme === "dark" ? "dark" : ""} bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white`}>
+    <div className={theme === "dark" ? "dark" : ""}>
+    <div className="min-h-screen flex bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white">
       {/* ── SIDEBAR ── */}
       <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-gray-50 dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
         <div className="p-6 pb-4 border-b border-gray-200 dark:border-[#1a1a1a]">
@@ -520,6 +521,7 @@ export default function Catalogue() {
           </a>
         </footer>
       </div>
+    </div>
     </div>
   );
 }
