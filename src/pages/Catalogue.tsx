@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTheme } from "next-themes";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
 import logoDark from "@/assets/dark.png";
@@ -243,10 +242,10 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export default function Catalogue() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const { resolvedTheme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const logo = resolvedTheme === "dark" ? logoDark : logoLight;
-  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  const logo = theme === "dark" ? logoDark : logoLight;
+  const toggleTheme = () => setTheme(prev => prev === "dark" ? "light" : "dark");
 
   const { data: categoriesData } = useQuery<ProductCategory[]>({
     queryKey: ["catalogueCategories"],
@@ -268,7 +267,7 @@ export default function Catalogue() {
   }));
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white flex">
+    <div className={`min-h-screen flex ${theme === "dark" ? "dark" : ""} bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white`}>
       {/* ── SIDEBAR ── */}
       <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-gray-50 dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
         <div className="p-6 pb-4 border-b border-gray-200 dark:border-[#1a1a1a]">
@@ -280,7 +279,7 @@ export default function Catalogue() {
               className="flex items-center justify-center w-7 h-7 rounded-full border border-gray-200 dark:border-[#2a2a2a] text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-white transition-colors"
               aria-label="Toggle theme"
             >
-              {resolvedTheme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
+              {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
             </button>
           </div>
         </div>
@@ -350,7 +349,7 @@ export default function Catalogue() {
             className="p-2 text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white transition-colors"
             aria-label="Toggle theme"
           >
-            {resolvedTheme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
         </div>
 
