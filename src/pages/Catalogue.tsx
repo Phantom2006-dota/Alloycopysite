@@ -273,7 +273,16 @@ export default function Catalogue() {
       <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-gray-50 dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
         <div className="p-6 pb-4 border-b border-gray-200 dark:border-[#1a1a1a]">
           <img src={logo} alt="Bauhaus Production" className="w-16 mb-3" />
-          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555]">Catalogue</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555]">Catalogue</p>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-7 h-7 rounded-full border border-gray-200 dark:border-[#2a2a2a] text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-white transition-colors"
+              aria-label="Toggle theme"
+            >
+              {resolvedTheme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 py-6">
@@ -326,15 +335,7 @@ export default function Catalogue() {
             <Globe size={10} className="text-gray-400 dark:text-[#444]" />
             <p className="text-[10px] tracking-[0.1em] uppercase text-gray-400 dark:text-[#444]">Global Delivery</p>
           </div>
-          <p className="text-[10px] text-gray-300 dark:text-[#333] tracking-widest mb-4">DHL / UPS</p>
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-[#2a2a2a] px-3 py-2 w-full justify-center transition-colors"
-            aria-label="Toggle theme"
-          >
-            {resolvedTheme === "dark" ? <Sun size={11} /> : <Moon size={11} />}
-            {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
-          </button>
+          <p className="text-[10px] text-gray-300 dark:text-[#333] tracking-widest">DHL / UPS</p>
         </div>
       </aside>
 
