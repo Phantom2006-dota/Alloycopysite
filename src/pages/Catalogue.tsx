@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
 import logoDark from "@/assets/dark.png";
-import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard, Sun, Moon } from "lucide-react";
+import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard, Sun, Moon, Search, X } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 
 const WHATSAPP_NUMBER = "2347038892961";
@@ -249,6 +249,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export default function Catalogue() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   const logo = theme === "dark" ? logoDark : logoLight;
@@ -265,7 +266,20 @@ export default function Catalogue() {
   });
 
   const categories = categoriesData || [];
-  const products = productsData?.products || [];
+  const allProducts = productsData?.products || [];
+
+  const products = searchQuery.trim()
+    ? allProducts.filter((p) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          p.title.toLowerCase().includes(q) ||
+          (p.shortDescription ?? "").toLowerCase().includes(q) ||
+          (p.description ?? "").toLowerCase().includes(q) ||
+          (p.category?.name ?? "").toLowerCase().includes(q) ||
+          (p.sku ?? "").toLowerCase().includes(q)
+        );
+      })
+    : allProducts;
 
   const sidebarCategories = categories.map((cat, i) => ({
     num: String(i + 1).padStart(2, "0"),
@@ -367,6 +381,36 @@ export default function Catalogue() {
             Curated<br />Heritage<br />Objects
           </h1>
           <p className="text-xs tracking-[0.25em] uppercase text-gray-400 dark:text-[#555] mb-8">From the World of Eko</p>
+
+          {/* Search bar */}
+          <div className="relative mb-6 max-w-sm">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#555] pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search objects…"
+              className="w-full bg-transparent border border-gray-200 dark:border-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-[#444] text-xs tracking-[0.1em] pl-8 pr-8 py-2.5 outline-none focus:border-gray-500 dark:focus:border-[#555] transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          {/* Search result count */}
+          {searchQuery.trim() && (
+            <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#555] mb-6">
+              {products.length === 0
+                ? "No results found"
+                : `${products.length} result${products.length !== 1 ? "s" : ""} for "${searchQuery}"`}
+            </p>
+          )}
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
             {["All", ...categories.map((c) => c.name)].map((cat, i) => {
