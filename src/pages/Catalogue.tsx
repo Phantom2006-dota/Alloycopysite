@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
 import logoDark from "@/assets/dark.png";
-import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard } from "lucide-react";
+import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard, Sun, Moon } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 
 const WHATSAPP_NUMBER = "2347038892961";
@@ -243,9 +243,10 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export default function Catalogue() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const logo = resolvedTheme === "dark" ? logoLight : logoDark;
+  const logo = resolvedTheme === "dark" ? logoDark : logoLight;
+  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
 
   const { data: categoriesData } = useQuery<ProductCategory[]>({
     queryKey: ["catalogueCategories"],
@@ -325,7 +326,15 @@ export default function Catalogue() {
             <Globe size={10} className="text-gray-400 dark:text-[#444]" />
             <p className="text-[10px] tracking-[0.1em] uppercase text-gray-400 dark:text-[#444]">Global Delivery</p>
           </div>
-          <p className="text-[10px] text-gray-300 dark:text-[#333] tracking-widest">DHL / UPS</p>
+          <p className="text-[10px] text-gray-300 dark:text-[#333] tracking-widest mb-4">DHL / UPS</p>
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-[#2a2a2a] px-3 py-2 w-full justify-center transition-colors"
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === "dark" ? <Sun size={11} /> : <Moon size={11} />}
+            {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
+          </button>
         </div>
       </aside>
 
@@ -335,6 +344,13 @@ export default function Catalogue() {
         <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-[#1a1a1a] bg-gray-50 dark:bg-[#0d0d0d]">
           <img src={logo} alt="Bauhaus Production" className="w-12" />
           <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555]">Catalogue</p>
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-gray-400 dark:text-[#555] hover:text-gray-900 dark:hover:text-white transition-colors"
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
         </div>
 
         {/* Hero */}
