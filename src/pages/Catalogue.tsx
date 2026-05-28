@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
+import logoDark from "@/assets/dark.png";
 import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 
@@ -54,29 +56,27 @@ interface Product {
   metaDescription: string | null;
 }
 
-const formatPrice = (cents: number) => {
-  const amount = cents / 100;
-  return new Intl.NumberFormat("en-NG", {
+const formatPrice = (cents: number) =>
+  new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
-};
+  }).format(cents / 100);
 
 function AccordionRow({ label }: { label: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-t border-[#2a2a2a]">
+    <div className="border-t border-gray-200 dark:border-[#2a2a2a]">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full py-3 px-4 text-xs tracking-[0.15em] uppercase text-[#888] hover:text-white transition-colors"
+        className="flex items-center justify-between w-full py-3 px-4 text-xs tracking-[0.15em] uppercase text-gray-400 dark:text-[#888] hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         <span>{label}</span>
         {open ? <Minus size={12} /> : <Plus size={12} />}
       </button>
       {open && (
-        <div className="px-4 pb-3 text-xs text-[#666] leading-relaxed">
+        <div className="px-4 pb-3 text-xs text-gray-400 dark:text-[#666] leading-relaxed">
           Information not available for this item.
         </div>
       )}
@@ -89,11 +89,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
   const images: string[] = (() => {
     if (!product.images) return [];
-    try {
-      return JSON.parse(product.images);
-    } catch {
-      return [];
-    }
+    try { return JSON.parse(product.images); } catch { return []; }
   })();
   const allImages = product.featuredImage
     ? [product.featuredImage, ...images.filter((i) => i !== product.featuredImage)]
@@ -102,35 +98,35 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
   const num = String(index + 1).padStart(2, "0");
 
   return (
-    <div className="border-t border-[#1e1e1e] py-10">
+    <div className="border-t border-gray-100 dark:border-[#1e1e1e] py-10">
       <div className="flex flex-col lg:flex-row gap-0">
         {/* Images */}
         <div className="w-full lg:w-[42%] flex-shrink-0">
           <div className="grid grid-cols-2 gap-0.5">
             {displayImages.length >= 2 ? (
               <>
-                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                <div className="aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-[#111]">
                   <img src={displayImages[0]} alt={product.title} className="w-full h-full object-cover" />
                 </div>
-                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                <div className="aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-[#111]">
                   <img src={displayImages[1]} alt={product.title} className="w-full h-full object-cover" />
                 </div>
               </>
             ) : displayImages.length === 1 ? (
               <>
-                <div className="aspect-[3/4] overflow-hidden bg-[#111]">
+                <div className="aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-[#111]">
                   <img src={displayImages[0]} alt={product.title} className="w-full h-full object-cover" />
                 </div>
-                <div className="aspect-[3/4] bg-[#111] flex items-center justify-center">
-                  <span className="text-[#333] text-xs tracking-widest uppercase">No image</span>
+                <div className="aspect-[3/4] bg-gray-50 dark:bg-[#111] flex items-center justify-center">
+                  <span className="text-gray-300 dark:text-[#333] text-xs tracking-widest uppercase">No image</span>
                 </div>
               </>
             ) : (
               <>
-                <div className="aspect-[3/4] bg-[#111] flex items-center justify-center">
-                  <span className="text-[#333] text-xs tracking-widest uppercase">No image</span>
+                <div className="aspect-[3/4] bg-gray-100 dark:bg-[#111] flex items-center justify-center">
+                  <span className="text-gray-300 dark:text-[#333] text-xs tracking-widest uppercase">No image</span>
                 </div>
-                <div className="aspect-[3/4] bg-[#0d0d0d]" />
+                <div className="aspect-[3/4] bg-gray-50 dark:bg-[#0d0d0d]" />
               </>
             )}
           </div>
@@ -138,65 +134,61 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
         {/* Details */}
         <div className="w-full lg:w-[58%] flex flex-col lg:pl-10 pt-6 lg:pt-0">
-          {/* Header row */}
           <div className="flex items-start justify-between mb-4">
-            <span className="text-[#555] text-xs tracking-widest">{num}</span>
-            <span className="text-[#555] text-[10px] tracking-[0.2em] uppercase">
+            <span className="text-gray-300 dark:text-[#555] text-xs tracking-widest">{num}</span>
+            <span className="text-gray-400 dark:text-[#555] text-[10px] tracking-[0.2em] uppercase">
               {product.category?.name || "Uncategorised"}
             </span>
           </div>
 
-          {/* Title */}
-          <h2 className="font-serif text-xl md:text-2xl text-white uppercase leading-tight tracking-wide mb-3">
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900 dark:text-white uppercase leading-tight tracking-wide mb-3">
             {product.title}
           </h2>
 
-          {/* Price + stock badge */}
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-white text-lg font-light">{formatPrice(product.price)}</span>
+            <span className="text-gray-900 dark:text-white text-lg font-light">{formatPrice(product.price)}</span>
             {product.compareAtPrice && (
-              <span className="text-[#555] text-sm line-through">{formatPrice(product.compareAtPrice)}</span>
+              <span className="text-gray-400 dark:text-[#555] text-sm line-through">{formatPrice(product.compareAtPrice)}</span>
             )}
             {!product.isInStock ? (
-              <span className="text-[10px] tracking-[0.2em] uppercase text-[#888] border border-[#333] px-2 py-0.5">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 dark:text-[#888] border border-gray-200 dark:border-[#333] px-2 py-0.5">
                 Out of Stock
               </span>
             ) : (
-              <span className="text-[10px] tracking-[0.2em] uppercase text-[#888]">Made to Order</span>
+              <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 dark:text-[#888]">
+                Made to Order
+              </span>
             )}
           </div>
 
-          {/* Description */}
           {(product.shortDescription || product.description) && (
-            <p className="text-[#888] text-xs leading-relaxed mb-6 max-w-md">
+            <p className="text-gray-500 dark:text-[#888] text-xs leading-relaxed mb-6 max-w-md">
               {product.shortDescription || product.description}
             </p>
           )}
 
-          {/* Specs */}
           <div className="mb-6 space-y-2">
             {product.sku && (
               <div className="flex gap-4 text-xs">
-                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">SKU</span>
-                <span className="text-[#aaa]">{product.sku}</span>
+                <span className="text-gray-400 dark:text-[#555] uppercase tracking-widest w-20 flex-shrink-0">SKU</span>
+                <span className="text-gray-600 dark:text-[#aaa]">{product.sku}</span>
               </div>
             )}
             {product.category && (
               <div className="flex gap-4 text-xs">
-                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Category</span>
-                <span className="text-[#aaa]">{product.category.name}</span>
+                <span className="text-gray-400 dark:text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Category</span>
+                <span className="text-gray-600 dark:text-[#aaa]">{product.category.name}</span>
               </div>
             )}
             {product.metaTitle && (
               <div className="flex gap-4 text-xs">
-                <span className="text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Origin</span>
-                <span className="text-[#aaa]">{product.metaTitle}</span>
+                <span className="text-gray-400 dark:text-[#555] uppercase tracking-widest w-20 flex-shrink-0">Origin</span>
+                <span className="text-gray-600 dark:text-[#aaa]">{product.metaTitle}</span>
               </div>
             )}
           </div>
 
-          {/* Accordion */}
-          <div className="border-b border-[#2a2a2a] mb-6">
+          <div className="border-b border-gray-100 dark:border-[#2a2a2a] mb-6">
             <AccordionRow label="Provenance" />
             <AccordionRow label="Technique" />
             <AccordionRow label="Historical Context" />
@@ -204,13 +196,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             <AccordionRow label="Maker Story (Video)" />
           </div>
 
-          {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-stretch gap-3">
-            {/* Buy Now — primary action */}
             {product.isInStock ? (
               <button
                 onClick={() => setCheckoutOpen(true)}
-                className="flex items-center justify-center gap-2 bg-white text-black text-xs tracking-[0.15em] uppercase px-5 py-3 hover:bg-[#e0e0e0] transition-colors flex-1"
+                className="flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black text-xs tracking-[0.15em] uppercase px-5 py-3 hover:bg-gray-700 dark:hover:bg-[#e0e0e0] transition-colors flex-1"
               >
                 <CreditCard size={14} />
                 Buy Now — {formatPrice(product.price)}
@@ -218,24 +208,23 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             ) : (
               <button
                 disabled
-                className="flex items-center justify-center gap-2 bg-[#1a1a1a] text-[#555] text-xs tracking-[0.15em] uppercase px-5 py-3 cursor-not-allowed flex-1"
+                className="flex items-center justify-center gap-2 bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-[#555] text-xs tracking-[0.15em] uppercase px-5 py-3 cursor-not-allowed flex-1"
               >
                 Out of Stock
               </button>
             )}
 
-            {/* Enquire on WhatsApp */}
             <a
               href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Hi, I'm interested in: ${product.title}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 border border-[#333] text-[#888] text-xs tracking-[0.12em] uppercase px-4 py-3 hover:border-white hover:text-white transition-colors"
+              className="flex items-center justify-center gap-2 border border-gray-300 dark:border-[#333] text-gray-500 dark:text-[#888] text-xs tracking-[0.12em] uppercase px-4 py-3 hover:border-gray-900 dark:hover:border-white hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
               Enquire
             </a>
 
-            <button className="flex items-center justify-center gap-1.5 border border-[#2a2a2a] text-[#555] text-xs tracking-[0.12em] uppercase px-4 py-3 hover:border-[#444] hover:text-[#888] transition-colors">
+            <button className="flex items-center justify-center gap-1.5 border border-gray-200 dark:border-[#2a2a2a] text-gray-400 dark:text-[#555] text-xs tracking-[0.12em] uppercase px-4 py-3 hover:border-gray-400 dark:hover:border-[#444] hover:text-gray-600 dark:hover:text-[#888] transition-colors">
               <Bookmark size={12} />
               Save
             </button>
@@ -254,6 +243,9 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export default function Catalogue() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { resolvedTheme } = useTheme();
+
+  const logo = resolvedTheme === "dark" ? logoLight : logoDark;
 
   const { data: categoriesData } = useQuery<ProductCategory[]>({
     queryKey: ["catalogueCategories"],
@@ -275,12 +267,12 @@ export default function Catalogue() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white flex">
       {/* ── SIDEBAR ── */}
-      <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-[#0d0d0d] border-r border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
-        <div className="p-6 pb-4 border-b border-[#1a1a1a]">
-          <img src={logoLight} alt="Bauhaus Production" className="w-16 mb-3" />
-          <p className="text-[10px] tracking-[0.3em] uppercase text-[#555]">Catalogue</p>
+      <aside className="hidden lg:flex flex-col w-[200px] xl:w-[220px] flex-shrink-0 bg-gray-50 dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-[#1a1a1a] sticky top-0 h-screen overflow-y-auto">
+        <div className="p-6 pb-4 border-b border-gray-200 dark:border-[#1a1a1a]">
+          <img src={logo} alt="Bauhaus Production" className="w-16 mb-3" />
+          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555]">Catalogue</p>
         </div>
 
         <nav className="flex-1 px-4 py-6">
@@ -288,10 +280,10 @@ export default function Catalogue() {
             onClick={() => setActiveCategory(null)}
             className={`block w-full text-left mb-5 transition-opacity ${!activeCategory ? "opacity-100" : "opacity-50 hover:opacity-80"}`}
           >
-            <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${!activeCategory ? "text-white font-semibold" : "text-[#555]"}`}>
+            <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${!activeCategory ? "text-gray-900 dark:text-white font-semibold" : "text-gray-400 dark:text-[#555]"}`}>
               00
             </span>
-            <span className={`text-xs tracking-wide ${!activeCategory ? "text-white" : "text-[#888]"}`}>
+            <span className={`text-xs tracking-wide ${!activeCategory ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-[#888]"}`}>
               All Objects
             </span>
           </button>
@@ -302,56 +294,56 @@ export default function Catalogue() {
               onClick={() => setActiveCategory(cat.slug === activeCategory ? null : cat.slug)}
               className={`block w-full text-left mb-5 transition-opacity ${activeCategory === cat.slug ? "opacity-100" : "opacity-50 hover:opacity-80"}`}
             >
-              <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${activeCategory === cat.slug ? "text-white font-semibold" : "text-[#555]"}`}>
+              <span className={`text-[10px] tracking-[0.2em] uppercase block mb-0.5 ${activeCategory === cat.slug ? "text-gray-900 dark:text-white font-semibold" : "text-gray-400 dark:text-[#555]"}`}>
                 {cat.num}
               </span>
-              <span className={`text-xs tracking-wide leading-tight ${activeCategory === cat.slug ? "text-white font-medium" : "text-[#888]"}`}>
+              <span className={`text-xs tracking-wide leading-tight ${activeCategory === cat.slug ? "text-gray-900 dark:text-white font-medium" : "text-gray-500 dark:text-[#888]"}`}>
                 {cat.label}
               </span>
             </button>
           ))}
 
-          <div className="mt-6 pt-6 border-t border-[#1a1a1a] space-y-4">
-            <p className="text-[10px] tracking-[0.15em] uppercase text-[#444] hover:text-[#888] transition-colors cursor-default">
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-[#1a1a1a] space-y-4">
+            <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors cursor-default">
               About The Lagoon
             </p>
-            <p className="text-[10px] tracking-[0.15em] uppercase text-[#444] hover:text-[#888] transition-colors cursor-default">
+            <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors cursor-default">
               Provenance
             </p>
             <a
               href={`mailto:${CONTACT.nigeria.email}`}
-              className="block text-[10px] tracking-[0.15em] uppercase text-[#444] hover:text-[#888] transition-colors"
+              className="block text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors"
             >
               Contact
             </a>
           </div>
         </nav>
 
-        <div className="px-4 py-6 border-t border-[#1a1a1a]">
-          <p className="text-[10px] tracking-[0.15em] uppercase text-[#444] mb-1">Lagos, Nigeria</p>
+        <div className="px-4 py-6 border-t border-gray-200 dark:border-[#1a1a1a]">
+          <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] mb-1">Lagos, Nigeria</p>
           <div className="flex items-center gap-1.5 mb-1">
-            <Globe size={10} className="text-[#444]" />
-            <p className="text-[10px] tracking-[0.1em] uppercase text-[#444]">Global Delivery</p>
+            <Globe size={10} className="text-gray-400 dark:text-[#444]" />
+            <p className="text-[10px] tracking-[0.1em] uppercase text-gray-400 dark:text-[#444]">Global Delivery</p>
           </div>
-          <p className="text-[10px] text-[#333] tracking-widest">DHL / UPS</p>
+          <p className="text-[10px] text-gray-300 dark:text-[#333] tracking-widest">DHL / UPS</p>
         </div>
       </aside>
 
       {/* ── MAIN CONTENT ── */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-[#1a1a1a] bg-[#0d0d0d]">
-          <img src={logoLight} alt="Bauhaus Production" className="w-12" />
-          <p className="text-[10px] tracking-[0.3em] uppercase text-[#555]">Catalogue</p>
+        <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-[#1a1a1a] bg-gray-50 dark:bg-[#0d0d0d]">
+          <img src={logo} alt="Bauhaus Production" className="w-12" />
+          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555]">Catalogue</p>
         </div>
 
         {/* Hero */}
-        <section className="px-6 lg:px-12 pt-12 pb-10 border-b border-[#1a1a1a]">
-          <p className="text-[10px] tracking-[0.3em] uppercase text-[#666] mb-4">Bauhaus Production</p>
-          <h1 className="font-serif text-4xl md:text-5xl xl:text-6xl uppercase leading-none tracking-tight text-white mb-2">
+        <section className="px-6 lg:px-12 pt-12 pb-10 border-b border-gray-200 dark:border-[#1a1a1a]">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#666] mb-4">Bauhaus Production</p>
+          <h1 className="font-serif text-4xl md:text-5xl xl:text-6xl uppercase leading-none tracking-tight text-gray-900 dark:text-white mb-2">
             Curated<br />Heritage<br />Objects
           </h1>
-          <p className="text-xs tracking-[0.25em] uppercase text-[#555] mb-8">From the World of Eko</p>
+          <p className="text-xs tracking-[0.25em] uppercase text-gray-400 dark:text-[#555] mb-8">From the World of Eko</p>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-8">
             {["All", ...categories.map((c) => c.name)].map((cat, i) => {
@@ -361,16 +353,22 @@ export default function Catalogue() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(slug)}
-                  className={`text-[10px] tracking-[0.2em] uppercase transition-colors ${isActive ? "text-white" : "text-[#444] hover:text-[#888]"}`}
+                  className={`text-[10px] tracking-[0.2em] uppercase transition-colors ${
+                    isActive
+                      ? "text-gray-900 dark:text-white"
+                      : "text-gray-300 dark:text-[#444] hover:text-gray-600 dark:hover:text-[#888]"
+                  }`}
                 >
                   {cat}
-                  {i < categories.length && <span className="ml-3 text-[#2a2a2a]">•</span>}
+                  {i < categories.length && (
+                    <span className="ml-3 text-gray-200 dark:text-[#2a2a2a]">•</span>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <button className="flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-[#888] hover:text-white transition-colors group">
+          <button className="flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-gray-400 dark:text-[#888] hover:text-gray-900 dark:hover:text-white transition-colors group">
             Explore the Catalogue
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
@@ -380,12 +378,12 @@ export default function Catalogue() {
         <section className="flex-1 px-6 lg:px-12">
           {isLoading ? (
             <div className="flex items-center justify-center py-24">
-              <div className="w-5 h-5 border border-[#333] border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border border-gray-200 dark:border-[#333] border-t-gray-900 dark:border-t-white rounded-full animate-spin" />
             </div>
           ) : products.length === 0 ? (
             <div className="py-24 text-center">
-              <p className="text-[#444] text-xs tracking-[0.2em] uppercase">No objects available</p>
-              <p className="text-[#333] text-xs mt-2">Check back soon or browse another category</p>
+              <p className="text-gray-400 dark:text-[#444] text-xs tracking-[0.2em] uppercase">No objects available</p>
+              <p className="text-gray-300 dark:text-[#333] text-xs mt-2">Check back soon or browse another category</p>
             </div>
           ) : (
             products.map((product, i) => (
@@ -395,7 +393,7 @@ export default function Catalogue() {
         </section>
 
         {/* Trust bar */}
-        <section className="px-6 lg:px-12 py-8 border-t border-[#1a1a1a] grid grid-cols-2 md:grid-cols-4 gap-6">
+        <section className="px-6 lg:px-12 py-8 border-t border-gray-200 dark:border-[#1a1a1a] grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
             { title: "Curated Goods", desc: "Every object is carefully selected and authenticated." },
             { title: "Guaranteed Authenticity", desc: "Each item comes with a provenance card." },
@@ -403,22 +401,28 @@ export default function Catalogue() {
             { title: "Global Delivery", desc: "Tracked & insured shipping worldwide." },
           ].map((item) => (
             <div key={item.title}>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-white mb-1">{item.title}</p>
-              <p className="text-[10px] text-[#555] leading-relaxed">{item.desc}</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-gray-900 dark:text-white mb-1">{item.title}</p>
+              <p className="text-[10px] text-gray-400 dark:text-[#555] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </section>
 
         {/* Contact section */}
-        <section className="px-6 lg:px-12 py-10 border-t border-[#1a1a1a] grid md:grid-cols-2 gap-8">
+        <section className="px-6 lg:px-12 py-10 border-t border-gray-200 dark:border-[#1a1a1a] grid md:grid-cols-2 gap-8">
           {[CONTACT.nigeria, CONTACT.uk].map((office) => (
             <div key={office.label}>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-[#555] mb-3">{office.label}</p>
-              <p className="text-xs text-[#888] mb-1">{office.address}</p>
-              <a href={`tel:${office.phone.replace(/\s/g, "")}`} className="block text-xs text-[#888] hover:text-white transition-colors mb-1">
+              <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555] mb-3">{office.label}</p>
+              <p className="text-xs text-gray-500 dark:text-[#888] mb-1">{office.address}</p>
+              <a
+                href={`tel:${office.phone.replace(/\s/g, "")}`}
+                className="block text-xs text-gray-500 dark:text-[#888] hover:text-gray-900 dark:hover:text-white transition-colors mb-1"
+              >
                 {office.phone}
               </a>
-              <a href={`mailto:${office.email}`} className="block text-xs text-[#666] hover:text-[#aaa] transition-colors">
+              <a
+                href={`mailto:${office.email}`}
+                className="block text-xs text-gray-400 dark:text-[#666] hover:text-gray-700 dark:hover:text-[#aaa] transition-colors"
+              >
                 {office.email}
               </a>
             </div>
@@ -426,23 +430,23 @@ export default function Catalogue() {
         </section>
 
         {/* Footer bar */}
-        <footer className="px-6 lg:px-12 py-5 border-t border-[#1a1a1a] bg-[#0d0d0d] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <footer className="px-6 lg:px-12 py-5 border-t border-gray-200 dark:border-[#1a1a1a] bg-gray-50 dark:bg-[#0d0d0d] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-[#888] mb-0.5">The Lagoon Cabinet</p>
-            <p className="text-[9px] text-[#444] tracking-wide">Objects from the World of Eko</p>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 dark:text-[#888] mb-0.5">The Lagoon Cabinet</p>
+            <p className="text-[9px] text-gray-400 dark:text-[#444] tracking-wide">Objects from the World of Eko</p>
           </div>
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-[9px] text-[#444] tracking-wide">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-[9px] text-gray-400 dark:text-[#444] tracking-wide">
             <span>Ships from Lagos, Nigeria</span>
-            <span className="hidden md:inline text-[#2a2a2a]">|</span>
+            <span className="hidden md:inline text-gray-200 dark:text-[#2a2a2a]">|</span>
             <span>Processing time: 2–6 weeks</span>
-            <span className="hidden md:inline text-[#2a2a2a]">|</span>
+            <span className="hidden md:inline text-gray-200 dark:text-[#2a2a2a]">|</span>
             <span>Returns: 14 days on stocked items</span>
           </div>
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-white text-black text-[10px] tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-[#e0e0e0] transition-colors"
+            className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black text-[10px] tracking-[0.15em] uppercase px-4 py-2.5 hover:bg-gray-700 dark:hover:bg-[#e0e0e0] transition-colors"
           >
             <WhatsAppIcon className="w-3 h-3" />
             Contact us via WhatsApp
