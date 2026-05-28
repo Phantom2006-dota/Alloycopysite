@@ -170,6 +170,11 @@ export const products = pgTable("products", {
   status: productStatusEnum("status").default('draft').notNull(),
   metaTitle: varchar("meta_title", { length: 255 }),
   metaDescription: text("meta_description"),
+  provenance: text("provenance"),
+  technique: text("technique"),
+  historicalContext: text("historical_context"),
+  novelExcerpt: text("novel_excerpt"),
+  makerStory: text("maker_story"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

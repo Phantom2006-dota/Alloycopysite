@@ -53,6 +53,11 @@ interface Product {
   category?: ProductCategory | null;
   metaTitle: string | null;
   metaDescription: string | null;
+  provenance: string | null;
+  technique: string | null;
+  historicalContext: string | null;
+  novelExcerpt: string | null;
+  makerStory: string | null;
 }
 
 const formatPrice = (cents: number) =>
@@ -63,7 +68,7 @@ const formatPrice = (cents: number) =>
     maximumFractionDigits: 0,
   }).format(cents / 100);
 
-function AccordionRow({ label }: { label: string }) {
+function AccordionRow({ label, content }: { label: string; content: string | null }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-t border-gray-200 dark:border-[#2a2a2a]">
@@ -75,8 +80,10 @@ function AccordionRow({ label }: { label: string }) {
         {open ? <Minus size={12} /> : <Plus size={12} />}
       </button>
       {open && (
-        <div className="px-4 pb-3 text-xs text-gray-400 dark:text-[#666] leading-relaxed">
-          Information not available for this item.
+        <div className="px-4 pb-4 text-xs text-gray-500 dark:text-[#666] leading-relaxed whitespace-pre-line">
+          {content?.trim() || (
+            <span className="italic text-gray-300 dark:text-[#444]">No information available for this item.</span>
+          )}
         </div>
       )}
     </div>
@@ -188,11 +195,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
 
           <div className="border-b border-gray-100 dark:border-[#2a2a2a] mb-6">
-            <AccordionRow label="Provenance" />
-            <AccordionRow label="Technique" />
-            <AccordionRow label="Historical Context" />
-            <AccordionRow label="Novel Excerpt" />
-            <AccordionRow label="Maker Story (Video)" />
+            <AccordionRow label="Provenance" content={product.provenance} />
+            <AccordionRow label="Technique" content={product.technique} />
+            <AccordionRow label="Historical Context" content={product.historicalContext} />
+            <AccordionRow label="Novel Excerpt" content={product.novelExcerpt} />
+            <AccordionRow label="Maker Story" content={product.makerStory} />
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch gap-3">

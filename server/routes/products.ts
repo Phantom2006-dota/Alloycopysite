@@ -270,6 +270,11 @@ router.post("/", authenticateToken, requireRole("super_admin", "editor"), async 
       status,
       metaTitle,
       metaDescription,
+      provenance,
+      technique,
+      historicalContext,
+      novelExcerpt,
+      makerStory,
     } = req.body;
 
     if (!title || price === undefined) {
@@ -299,6 +304,11 @@ router.post("/", authenticateToken, requireRole("super_admin", "editor"), async 
       status: status || 'draft',
       metaTitle,
       metaDescription,
+      provenance: provenance || null,
+      technique: technique || null,
+      historicalContext: historicalContext || null,
+      novelExcerpt: novelExcerpt || null,
+      makerStory: makerStory || null,
     }).returning();
 
     res.status(201).json(newProduct);
@@ -334,6 +344,11 @@ router.put("/:id", authenticateToken, requireRole("super_admin", "editor"), asyn
       status,
       metaTitle,
       metaDescription,
+      provenance,
+      technique,
+      historicalContext,
+      novelExcerpt,
+      makerStory,
     } = req.body;
 
     const updates: Record<string, any> = { updatedAt: new Date() };
@@ -363,6 +378,11 @@ router.put("/:id", authenticateToken, requireRole("super_admin", "editor"), asyn
     if (status !== undefined) updates.status = status;
     if (metaTitle !== undefined) updates.metaTitle = metaTitle;
     if (metaDescription !== undefined) updates.metaDescription = metaDescription;
+    if (provenance !== undefined) updates.provenance = provenance || null;
+    if (technique !== undefined) updates.technique = technique || null;
+    if (historicalContext !== undefined) updates.historicalContext = historicalContext || null;
+    if (novelExcerpt !== undefined) updates.novelExcerpt = novelExcerpt || null;
+    if (makerStory !== undefined) updates.makerStory = makerStory || null;
 
     const [updatedProduct] = await db.update(products).set(updates).where(eq(products.id, productId)).returning();
 

@@ -49,6 +49,11 @@ interface Product {
   status: string;
   createdAt: string;
   category?: ProductCategory | null;
+  provenance: string | null;
+  technique: string | null;
+  historicalContext: string | null;
+  novelExcerpt: string | null;
+  makerStory: string | null;
 }
 
 export default function Products() {
@@ -73,6 +78,11 @@ export default function Products() {
     isInStock: true,
     isFeatured: false,
     status: "published" as const,
+    provenance: "",
+    technique: "",
+    historicalContext: "",
+    novelExcerpt: "",
+    makerStory: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -145,6 +155,11 @@ export default function Products() {
       isInStock: formData.isInStock,
       isFeatured: formData.isFeatured,
       status: formData.status,
+      provenance: formData.provenance || null,
+      technique: formData.technique || null,
+      historicalContext: formData.historicalContext || null,
+      novelExcerpt: formData.novelExcerpt || null,
+      makerStory: formData.makerStory || null,
     };
 
     if (editingItem) {
@@ -179,6 +194,11 @@ export default function Products() {
       isInStock: item.isInStock,
       isFeatured: item.isFeatured,
       status: item.status as any,
+      provenance: item.provenance || "",
+      technique: item.technique || "",
+      historicalContext: item.historicalContext || "",
+      novelExcerpt: item.novelExcerpt || "",
+      makerStory: item.makerStory || "",
     });
     setIsOpen(true);
   };
@@ -502,6 +522,62 @@ export default function Products() {
                   onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
                 />
                 <Label htmlFor="isFeatured">Featured Product</Label>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">Catalogue Details</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="provenance">Provenance</Label>
+                  <Textarea
+                    id="provenance"
+                    value={formData.provenance}
+                    onChange={(e) => setFormData({ ...formData, provenance: e.target.value })}
+                    placeholder="Where this object comes from, its origin and journey..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="technique">Technique</Label>
+                  <Textarea
+                    id="technique"
+                    value={formData.technique}
+                    onChange={(e) => setFormData({ ...formData, technique: e.target.value })}
+                    placeholder="Craftsmanship methods and materials used..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="historicalContext">Historical Context</Label>
+                  <Textarea
+                    id="historicalContext"
+                    value={formData.historicalContext}
+                    onChange={(e) => setFormData({ ...formData, historicalContext: e.target.value })}
+                    placeholder="The historical background and cultural significance..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="novelExcerpt">Novel Excerpt</Label>
+                  <Textarea
+                    id="novelExcerpt"
+                    value={formData.novelExcerpt}
+                    onChange={(e) => setFormData({ ...formData, novelExcerpt: e.target.value })}
+                    placeholder="An excerpt from a related novel or literary work..."
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="makerStory">Maker Story / Video URL</Label>
+                  <Textarea
+                    id="makerStory"
+                    value={formData.makerStory}
+                    onChange={(e) => setFormData({ ...formData, makerStory: e.target.value })}
+                    placeholder="The artisan's story, or paste a video URL (YouTube, Vimeo)..."
+                    rows={3}
+                  />
+                </div>
               </div>
             </div>
 
