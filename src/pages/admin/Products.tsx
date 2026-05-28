@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, ShoppingBag, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ShoppingBag, Search, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { api } from "@/lib/api";
@@ -62,6 +62,7 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [provenanceFilter, setProvenanceFilter] = useState("");
   const queryClient = useQueryClient();
 
   const initialFormData = {
@@ -105,7 +106,13 @@ export default function Products() {
     },
   });
 
-  const products = data?.products || [];
+  const allProducts = data?.products || [];
+
+  const products = provenanceFilter.trim()
+    ? allProducts.filter((p) =>
+        (p.provenance ?? "").toLowerCase().includes(provenanceFilter.toLowerCase())
+      )
+    : allProducts;
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => api.products.create(data),
@@ -243,40 +250,67 @@ export default function Products() {
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="relative max-w-sm">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter by provenance (e.g. Lagos, Benin…)"
+              value={provenanceFilter}
+              onChange={(e) => setProvenanceFilter(e.target.value)}
               className="pl-9"
             />
+            {provenanceFilter && (
+              <button
+                onClick={() => setProvenanceFilter("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear provenance filter"
+              >
+                ×
+              </button>
+            )}
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {provenanceFilter.trim() && (
+            <p className="text-sm text-muted-foreground">
+              {products.length === 0
+                ? `No products found with provenance matching "${provenanceFilter}"`
+                : `${products.length} product${products.length !== 1 ? "s" : ""} matching provenance "${provenanceFilter}"`}
+            </p>
+          )}
         </div>
 
         {isLoading ? (
