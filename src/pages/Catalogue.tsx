@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
 import logoDark from "@/assets/dark.png";
+import directorPhoto from "@/assets/olaseni-alaka.png";
 import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard, Sun, Moon, Search, X } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 
@@ -345,9 +346,12 @@ export default function Catalogue() {
           ))}
 
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-[#1a1a1a] space-y-4">
-            <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors cursor-default">
+            <a
+              href="#about"
+              className="block text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors"
+            >
               About The Lagoon
-            </p>
+            </a>
             <p className="text-[10px] tracking-[0.15em] uppercase text-gray-400 dark:text-[#444] hover:text-gray-700 dark:hover:text-[#888] transition-colors cursor-default">
               Provenance
             </p>
@@ -483,6 +487,32 @@ export default function Catalogue() {
               <p className="text-[10px] text-gray-400 dark:text-[#555] leading-relaxed">{item.desc}</p>
             </div>
           ))}
+        </section>
+
+        {/* About section */}
+        <section id="about" className="px-6 lg:px-12 py-14 border-t border-gray-200 dark:border-[#1a1a1a]">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 dark:text-[#555] mb-8">About The Lagoon</p>
+          <div className="flex flex-col md:flex-row gap-10 md:gap-16 items-start max-w-3xl">
+            <div className="flex-shrink-0">
+              <div className="w-36 h-36 md:w-44 md:h-44 overflow-hidden grayscale">
+                <img
+                  src={directorPhoto}
+                  alt="Olaseni Alaka"
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
+              <p className="mt-3 text-[10px] tracking-[0.15em] uppercase text-gray-900 dark:text-white">Olaseni Alaka</p>
+              <p className="text-[10px] tracking-[0.1em] text-gray-400 dark:text-[#555]">Director</p>
+            </div>
+            <div className="flex-1 space-y-4">
+              <p className="text-xs text-gray-600 dark:text-[#999] leading-relaxed">
+                Olaseni Alaka, Director, is the founder of Bauhaus Production and a Prince of Eko, with ancestral ties to Iga Idunganran (the Palace of the Oba of Lagos) and the Palace of the Olu of Sangotedo Kingdom. His work is deeply shaped by heritage, intellect, and a vision to reconnect Nigeria's past with its creative future.
+              </p>
+              <p className="text-xs text-gray-600 dark:text-[#999] leading-relaxed">
+                His debut book, <span className="italic">When The Lagoon Decides</span>, was inspired by a journey into the past to understand how his progenitors lived — their culture, their traditions, and the ways they related to those around them. Book One of the Eko Chronicles, <span className="italic">When The Lagoon Decides</span> will be available on all major platforms soon.
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Contact section */}
