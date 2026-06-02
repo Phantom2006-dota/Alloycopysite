@@ -5,8 +5,8 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider 
       attribute="class"
-      defaultTheme="dark"  // Default to dark on first visit
-      enableSystem={true}  // Allow system preference detection
+      defaultTheme="light"
+      enableSystem={false}
       disableTransitionOnChange={false}
       {...props}
     >
