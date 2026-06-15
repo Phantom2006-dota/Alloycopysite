@@ -12,3 +12,45 @@ id = "s15t0I7Ge6BFlT1jHVzeR"
 uri = "file://bauhaus-frontend.tar.gz"
 type = "unspecified"
 title = "BAUHAUS — Frontend (Responsive + Smaller Logo)"
+
+[[outputs]]
+id = "I0MXcmI0fsp3vt_D7htE_"
+uri = "file://attached_assets/stock_images/african_cinema_film.jpg"
+type = "image"
+title = "African cinema film production scene with camera and Nigerian actors"
+
+[[outputs]]
+id = "isT73xmtqYMLT0v92DzjM"
+uri = "file://attached_assets/stock_images/african_literature_book.jpg"
+type = "image"
+title = "African literature book with traditional Nigerian patterns on cover"
+
+[[outputs]]
+id = "NtkXS_AzDui9zXqeZYUqM"
+uri = "file://attached_assets/stock_images/african_anthology_books.jpg"
+type = "image"
+title = "Stack of poetry and short story books with warm African earthy tones"
+
+[[outputs]]
+id = "h3c_XJ9wWe7Tz4RFdtOmA"
+uri = "file://attached_assets/stock_images/documentary_dvd_set.jpg"
+type = "image"
+title = "Documentary DVD box set collection on wooden surface"
+
+[[outputs]]
+id = "wou3WGP9PvSWX1wSZhm-S"
+uri = "file://attached_assets/stock_images/books_category.jpg"
+type = "image"
+title = "Beautiful collection of books in a Nigerian cultural library setting"
+
+[[outputs]]
+id = "qTz1gKdp72gWD8Lvwm49W"
+uri = "file://attached_assets/stock_images/films_category.jpg"
+type = "image"
+title = "African film festival cinema screen with audience silhouettes"
+
+[[outputs]]
+id = "3-pyr_aFUXb7gZoFrSdFl"
+uri = "file://attached_assets/stock_images/subscriptions_category.jpg"
+type = "image"
+title = "Digital magazine subscription and cultural content on tablet"
