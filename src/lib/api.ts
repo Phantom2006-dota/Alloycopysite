@@ -530,6 +530,10 @@ export const api = {
   productCategories: {
     list: () => apiRequest<any[]>("/product-categories"),
     get: (slug: string) => apiRequest<any>(`/product-categories/${slug}`),
+    products: (slug: string, page = 1, limit = 12) =>
+      apiRequest<{ category: any; products: any[]; pagination: any }>(
+        `/product-categories/${slug}/products?page=${page}&limit=${limit}`,
+      ),
 
     // Product category create with optional image
     create: (data: any, files?: { image?: File }) => {

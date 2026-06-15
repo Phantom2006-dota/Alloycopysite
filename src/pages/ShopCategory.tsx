@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { api } from "@/lib/api";
 
 interface ProductCategory {
@@ -27,25 +28,24 @@ interface Product {
   category?: ProductCategory | null;
 }
 
+const LIMIT = 12;
+
 export default function ShopCategory() {
   const { category } = useParams<{ category: string }>();
+  const [page, setPage] = useState(1);
 
   const { data, isLoading, error } = useQuery<{
     category: ProductCategory;
     products: Product[];
-    pagination: any;
+    pagination: { page: number; limit: number; total: number; totalPages: number };
   }>({
-    queryKey: ["shopCategory", category],
-    queryFn: () => api.products.byCategory(category || ""),
+    queryKey: ["shopCategoryProducts", category, page],
+    queryFn: () => api.productCategories.products(category || "", page, LIMIT),
     enabled: !!category,
   });
 
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(cents / 100);
-  };
+  const formatPrice = (cents: number) =>
+    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(cents / 100);
 
   if (error) {
     return (
@@ -65,6 +65,9 @@ export default function ShopCategory() {
       </Layout>
     );
   }
+
+  const pagination = data?.pagination;
+  const products = data?.products ?? [];
 
   return (
     <Layout>
@@ -92,19 +95,21 @@ export default function ShopCategory() {
           <div className="container mx-auto px-4">
             {isLoading ? (
               <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
               </div>
-            ) : !data?.products || data.products.length === 0 ? (
+            ) : products.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 No products in this category yet.
               </div>
             ) : (
               <>
                 <p className="text-muted-foreground mb-8 text-center">
-                  {data.pagination.total} product{data.pagination.total !== 1 ? 's' : ''} in this category
+                  {pagination?.total ?? 0} product{(pagination?.total ?? 0) !== 1 ? "s" : ""} in{" "}
+                  <span className="font-medium text-foreground">{data?.category?.name}</span>
                 </p>
+
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {data.products.map((product) => (
+                  {products.map((product) => (
                     <Link key={product.id} to={`/shop/product/${product.slug}`}>
                       <Card className="overflow-hidden group h-full border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-lg">
                         <div className="aspect-square relative bg-muted overflow-hidden">
@@ -127,7 +132,9 @@ export default function ShopCategory() {
                           )}
                         </div>
                         <CardContent className="p-4">
-                          <p className="text-xs uppercase tracking-wide text-amber-600 mb-1">{data.category?.name}</p>
+                          <p className="text-xs uppercase tracking-wide text-amber-600 mb-1">
+                            {data?.category?.name}
+                          </p>
                           <h3 className="font-medium line-clamp-2 mb-2">{product.title}</h3>
                           {product.shortDescription && (
                             <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
@@ -147,6 +154,32 @@ export default function ShopCategory() {
                     </Link>
                   ))}
                 </div>
+
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page <= 1}
+                      onClick={() => { setPage((p) => p - 1); window.scrollTo(0, 0); }}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Page {pagination.page} of {pagination.totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= pagination.totalPages}
+                      onClick={() => { setPage((p) => p + 1); window.scrollTo(0, 0); }}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>
