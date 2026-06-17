@@ -217,9 +217,9 @@ export default function Products() {
   };
 
   const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'NGN',
+      currency: 'GBP',
     }).format(cents / 100);
   };
 
@@ -426,7 +426,7 @@ export default function Products() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price (NGN) *</Label>
+                <Label htmlFor="price">Price (GBP) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -438,7 +438,7 @@ export default function Products() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="compareAtPrice">Compare At Price (NGN)</Label>
+                <Label htmlFor="compareAtPrice">Compare At Price (GBP)</Label>
                 <Input
                   id="compareAtPrice"
                   type="number"
