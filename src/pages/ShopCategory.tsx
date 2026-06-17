@@ -45,7 +45,7 @@ export default function ShopCategory() {
   });
 
   const formatPrice = (cents: number) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(cents / 100);
+    new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(cents / 100);
 
   if (error) {
     return (

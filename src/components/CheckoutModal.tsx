@@ -77,9 +77,9 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
   const priceInMajorUnits = product.price / 100;
 
   const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'NGN',
+      currency: 'GBP',
     }).format(cents / 100);
   };
 

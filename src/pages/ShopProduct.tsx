@@ -51,9 +51,9 @@ export default function ShopProduct() {
   });
 
   const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'NGN',
+      currency: 'GBP',
     }).format(cents / 100);
   };
 

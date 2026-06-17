@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import logoLight from "@/assets/light.png";
 import logoDark from "@/assets/dark.png";
-import directorPhoto from "@/assets/olaseni-alaka.png";
+import directorPhoto from "@/assets/seni-alaka.jpg";
 import { Plus, Minus, ArrowRight, Globe, Bookmark, CreditCard, Sun, Moon, Search, X } from "lucide-react";
 import CheckoutModal from "@/components/CheckoutModal";
 
@@ -62,9 +62,9 @@ interface Product {
 }
 
 const formatPrice = (cents: number) =>
-  new Intl.NumberFormat("en-NG", {
+  new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "NGN",
+    currency: "GBP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(cents / 100);

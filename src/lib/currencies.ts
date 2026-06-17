@@ -51,4 +51,4 @@ export const formatCurrency = (amount: number, currencyCode: string): string => 
   }).format(amount);
 };
 
-export const DEFAULT_CURRENCY = "NGN";
+export const DEFAULT_CURRENCY = "GBP";
