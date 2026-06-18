@@ -11,6 +11,9 @@ import {
 
 const router = Router();
 
+const ADMIN_USERNAME = "admin01";
+const ADMIN_PASSWORD = "admin123";
+
 router.post("/login", async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
@@ -21,54 +24,17 @@ router.post("/login", async (req: Request, res: Response) => {
         .json({ message: "Username and password are required" });
     }
 
+    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.username, username));
+      .where(eq(users.username, ADMIN_USERNAME));
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    let passwordValid = false;
-
-    // A bcrypt hash is typically 60 characters long.
-    // If the stored password is long enough to be a hash, we attempt bcrypt comparison.
-    if (user.password.length >= 60) {
-      try {
-        // Attempt bcrypt comparison first, as this is the secure method
-        passwordValid = await bcrypt.compare(password, user.password);
-      } catch (e) {
-        // If bcrypt.compare fails (e.g., due to an invalid hash format),
-        // we fall through to the plain-text comparison logic below.
-        console.warn(`Bcrypt comparison failed for user ${username}. Falling back to plain-text check.`, e);
-      }
-    }
-
-    // Fallback for non-hashed or invalidly hashed passwords (for migration/manual updates)
-    if (!passwordValid) {
-      // Compare plain text
-      passwordValid = password === user.password;
-
-      // OPTIONAL: Auto-upgrade to bcrypt hash on successful login
-      if (passwordValid) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await db
-          .update(users)
-          .set({ password: hashedPassword })
-          .where(eq(users.id, user.id));
-        console.log(
-          `Auto-upgraded password for user ${username} to bcrypt hash`,
-        );
-      }
-    }
-
-    if (!passwordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    if (!user.isActive) {
-      return res.status(403).json({ message: "Account is deactivated" });
     }
 
     const token = generateToken({
