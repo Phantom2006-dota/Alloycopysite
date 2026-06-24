@@ -14,7 +14,9 @@ import uploadsRoutes from "./routes/uploads";
 import productsRoutes from "./routes/products";
 import productCategoriesRoutes from "./routes/productCategories";
 import paymentsRoutes from "./routes/payments";
+import htmlBlogRoutes from "./routes/htmlBlog";
 import { WebhookHandlers } from "./webhookHandlers";
+import fs from "fs";
 import { validateApiKey, checkApiKeyConfigured } from "./middleware/apiKey";
 import { setupVite, serveStatic } from "./vite";
 
@@ -235,6 +237,17 @@ app.use("/api/uploads", uploadsRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/product-categories", productCategoriesRoutes);
 app.use("/api/payments", paymentsRoutes);
+app.use("/api/html-blog", htmlBlogRoutes);
+
+// Serve HTML blog pages directly at /blog/:slug — before Vite intercepts
+app.get("/blog/:slug", (req: Request, res: Response, next: NextFunction) => {
+  const slug = req.params.slug;
+  const filePath = path.resolve(__dirname, "../html-blog-pages/", slug + ".html");
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  next();
+});
 
 // Route to check environment variables (for debugging, remove in production)
 app.get("/api/debug/env", (_req: Request, res: Response) => {

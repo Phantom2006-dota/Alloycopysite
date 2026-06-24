@@ -650,5 +650,9 @@ export const api = {
         };
       }>("/payments/charge/bank-transfer", { method: "POST", body: data }),
   },
+
+  htmlBlog: {
+    list: () => request<any[]>("/html-blog"),
+  },
 };
 // [file content end]

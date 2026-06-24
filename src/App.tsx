@@ -43,6 +43,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminUploads from "./pages/admin/Uploads";
 import AdminProducts from "./pages/admin/Products";
 import AdminProductCategories from "./pages/admin/ProductCategories";
+import AdminHtmlBlog from "./pages/admin/HtmlBlog";
 
 const queryClient = new QueryClient();
 
@@ -165,6 +166,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/blog"
+                element={
+                  <ProtectedRoute>
+                    <AdminHtmlBlog />
                   </ProtectedRoute>
                 }
               />

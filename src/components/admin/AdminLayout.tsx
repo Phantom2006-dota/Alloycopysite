@@ -21,6 +21,7 @@ import {
   Tv,
   ShoppingBag,
   Package,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ interface AdminLayoutProps {
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: FileText, label: "Articles", path: "/admin/articles" },
+  { icon: Globe, label: "Blog Pages", path: "/admin/blog" },
   { icon: Tags, label: "Categories", path: "/admin/categories" },
   { icon: ShoppingBag, label: "Products", path: "/admin/products" },
   { icon: Package, label: "Product Categories", path: "/admin/product-categories" },
