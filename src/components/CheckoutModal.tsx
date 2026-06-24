@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,37 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2, CreditCard } from "lucide-react";
-
-declare global {
-  interface Window {
-    FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
-  }
-}
-
-interface FlutterwaveConfig {
-  public_key: string;
-  tx_ref: string;
-  amount: number;
-  currency: string;
-  payment_options: string;
-  redirect_url: string;
-  customer: {
-    email: string;
-    phone_number: string;
-    name: string;
-  };
-  customizations: {
-    title: string;
-    description: string;
-    logo: string;
-  };
-  meta?: Record<string, any>;
-  callback?: (data: any) => void;
-  onclose?: () => void;
-}
 
 interface CheckoutModalProps {
   open: boolean;
@@ -56,25 +27,6 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-
-  useEffect(() => {
-    if (open && !scriptLoaded) {
-      const existingScript = document.querySelector('script[src="https://checkout.flutterwave.com/v3.js"]');
-      if (existingScript) {
-        setScriptLoaded(true);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://checkout.flutterwave.com/v3.js";
-      script.async = true;
-      script.onload = () => setScriptLoaded(true);
-      document.body.appendChild(script);
-    }
-  }, [open, scriptLoaded]);
-
-  const priceInMajorUnits = product.price / 100;
 
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -87,60 +39,38 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
     e.preventDefault();
 
     if (!name.trim() || !email.trim()) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    if (!scriptLoaded || !window.FlutterwaveCheckout) {
-      toast.error("Payment system is loading. Please try again.");
+      toast.error("Please fill in your name and email");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await api.payments.initialize({
-        email: email.trim(),
-        name: name.trim(),
-        phone: phone.trim(),
-        productId: product.id,
+      const response = await fetch("/api/payments/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          name: name.trim(),
+          phone: phone.trim(),
+          productId: product.id,
+        }),
       });
 
-      if (response.status === "success" && response.data) {
-        const paymentData = response.data;
+      const data = await response.json();
 
-        window.FlutterwaveCheckout({
-          public_key: paymentData.public_key,
-          tx_ref: paymentData.tx_ref,
-          amount: paymentData.amount,
-          currency: paymentData.currency,
-          payment_options: paymentData.payment_options,
-          redirect_url: paymentData.redirect_url,
-          customer: paymentData.customer,
-          customizations: paymentData.customizations,
-          meta: paymentData.meta,
-          callback: (data: any) => {
-            console.log("Payment callback:", data);
-            if (data.status === "successful" || data.status === "completed") {
-              toast.success("Payment successful! Thank you for your purchase.");
-              setIsLoading(false);
-              onOpenChange(false);
-              // No redirect - just stay on the page
-            } else {
-              toast.error("Payment failed. Please try again.");
-              setIsLoading(false);
-            }
-          },
-          onclose: () => {
-            setIsLoading(false);
-          },
-        });
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create checkout session");
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        throw new Error("Failed to initialize payment");
+        throw new Error("No checkout URL returned");
       }
     } catch (error: any) {
       console.error("Payment error:", error);
-      toast.error(error.message || "Failed to initialize payment. Please try again.");
+      toast.error(error.message || "Failed to start checkout. Please try again.");
       setIsLoading(false);
     }
   };
@@ -202,12 +132,12 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
           <Button
             type="submit"
             className="w-full bg-amber-600 hover:bg-amber-700"
-            disabled={isLoading || !scriptLoaded}
+            disabled={isLoading}
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                Redirecting to checkout...
               </>
             ) : (
               <>
@@ -218,7 +148,7 @@ export default function CheckoutModal({ open, onOpenChange, product }: CheckoutM
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            Secure payment powered by Flutterwave. Multiple payment methods available.
+            Secure payment powered by Stripe. You will be redirected to complete payment.
           </p>
         </form>
       </DialogContent>

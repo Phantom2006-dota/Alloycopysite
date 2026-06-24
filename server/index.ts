@@ -14,6 +14,7 @@ import uploadsRoutes from "./routes/uploads";
 import productsRoutes from "./routes/products";
 import productCategoriesRoutes from "./routes/productCategories";
 import paymentsRoutes from "./routes/payments";
+import { WebhookHandlers } from "./webhookHandlers";
 import { validateApiKey, checkApiKeyConfigured } from "./middleware/apiKey";
 import { setupVite, serveStatic } from "./vite";
 
@@ -35,6 +36,24 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : isStandaloneMode
     ? []
     : ["*"];
+
+// Stripe webhook must be registered BEFORE express.json() so body is raw Buffer
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req: Request, res: Response) => {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) return res.status(400).json({ error: "Missing stripe-signature" });
+    try {
+      const sig = Array.isArray(signature) ? signature[0] : signature;
+      await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+      res.status(200).json({ received: true });
+    } catch (error: any) {
+      console.error("Stripe webhook error:", error.message);
+      res.status(400).json({ error: "Webhook processing error" });
+    }
+  }
+);
 
 app.use(
   cors({
@@ -178,7 +197,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
   });
 });
 
-const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health"];
+const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook"];
 
 const conditionalValidateApiKey = (req: Request, res: Response, next: NextFunction) => {
   const path = req.path;
