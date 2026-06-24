@@ -44,7 +44,14 @@ async function request<T>(
     throw new Error(error.message || "Request failed");
   }
 
-  return response.json();
+  // Handle empty responses (204 No Content, etc.)
+  const text = await response.text();
+  if (!text || text.trim() === "") return {} as T;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Invalid JSON response from server");
+  }
 }
 
 // Unified request function that handles both JSON and FormData
@@ -85,7 +92,14 @@ async function apiRequest<T>(
     throw new Error(error.message || "Request failed");
   }
 
-  return response.json();
+  // Handle empty responses (204 No Content, etc.)
+  const text = await response.text();
+  if (!text || text.trim() === "") return {} as T;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Invalid JSON response from server");
+  }
 }
 
 // Helper to convert object to FormData for file uploads
