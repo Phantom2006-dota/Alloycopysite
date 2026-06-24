@@ -36,17 +36,25 @@ export default function AdminHtmlBlog() {
     queryFn: () => api.htmlBlog.list(),
   });
 
+  const safeFetch = async (url: string, options: RequestInit) => {
+    const token = localStorage.getItem("auth_token");
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+      },
+    });
+    const text = await res.text();
+    let data: any = {};
+    try { data = text ? JSON.parse(text) : {}; } catch {}
+    if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`);
+    return data;
+  };
+
   const uploadMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const res = await fetch("/api/html-blog", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      return data;
-    },
+    mutationFn: (formData: FormData) =>
+      safeFetch("/api/html-blog", { method: "POST", body: formData }),
     onSuccess: () => {
       toast.success("Blog post published successfully");
       queryClient.invalidateQueries({ queryKey: ["html-blog-posts"] });
@@ -56,18 +64,13 @@ export default function AdminHtmlBlog() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (slug: string) => {
-      const res = await fetch(`/api/html-blog/${slug}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      if (!res.ok) throw new Error("Delete failed");
-    },
+    mutationFn: (slug: string) =>
+      safeFetch(`/api/html-blog/${slug}`, { method: "DELETE" }),
     onSuccess: () => {
       toast.success("Post deleted");
       queryClient.invalidateQueries({ queryKey: ["html-blog-posts"] });
     },
-    onError: () => toast.error("Failed to delete post"),
+    onError: (err: any) => toast.error(err.message || "Failed to delete post"),
   });
 
   const resetForm = () => {
