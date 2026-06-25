@@ -11,6 +11,10 @@ const router = Router();
 const BLOG_DIR = path.resolve(__dirname, "../../html-blog-pages");
 const MANIFEST_PATH = path.join(BLOG_DIR, "manifest.json");
 
+// Ensure directory and manifest exist on startup
+if (!fs.existsSync(BLOG_DIR)) fs.mkdirSync(BLOG_DIR, { recursive: true });
+if (!fs.existsSync(MANIFEST_PATH)) fs.writeFileSync(MANIFEST_PATH, "[]", "utf-8");
+
 function readManifest(): any[] {
   try {
     const raw = fs.readFileSync(MANIFEST_PATH, "utf-8");

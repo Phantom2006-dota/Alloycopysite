@@ -9,6 +9,7 @@ COPY server ./server
 COPY shared ./shared
 COPY drizzle.config.ts ./
 COPY tsconfig.json ./
+COPY html-blog-pages ./html-blog-pages
 
 RUN npm install tsx drizzle-kit --save-dev
 
