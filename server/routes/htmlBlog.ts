@@ -18,6 +18,10 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
+router.get("/ping", (_req: Request, res: Response) => {
+  res.json({ status: "ok", route: "html-blog", version: "2.0.0" });
+});
+
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const posts = await db

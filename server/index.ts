@@ -195,12 +195,13 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    version: "1.0.0",
+    version: "2.0.0",
     mode: process.env.BACKEND_MODE || "integrated",
+    routes: ["html-blog", "media", "products", "auth", "articles", "events", "team"],
   });
 });
 
-const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook"];
+const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook", "/api/html-blog/ping"];
 
 const conditionalValidateApiKey = (req: Request, res: Response, next: NextFunction) => {
   const path = req.path;
