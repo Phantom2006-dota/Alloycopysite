@@ -3,6 +3,7 @@ import cors from "cors";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { runStartupMigrations } from "./db";
 import authRoutes from "./routes/auth";
 import articlesRoutes from "./routes/articles";
 import categoriesRoutes from "./routes/categories";
@@ -303,6 +304,9 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 (async () => {
   const server = createServer(app);
+
+  // Auto-create any missing tables on startup
+  await runStartupMigrations();
 
   // Display startup configuration
   console.log("\n" + "=".repeat(60));
