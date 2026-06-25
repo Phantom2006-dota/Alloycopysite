@@ -1,39 +1,13 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { db } from "../db";
+import { htmlBlogPosts } from "../../shared/schema";
+import { eq } from "drizzle-orm";
 
 const router = Router();
-const BLOG_DIR = path.resolve(__dirname, "../../html-blog-pages");
-const MANIFEST_PATH = path.join(BLOG_DIR, "manifest.json");
 
-// Ensure directory and manifest exist on startup
-if (!fs.existsSync(BLOG_DIR)) fs.mkdirSync(BLOG_DIR, { recursive: true });
-if (!fs.existsSync(MANIFEST_PATH)) fs.writeFileSync(MANIFEST_PATH, "[]", "utf-8");
-
-function readManifest(): any[] {
-  try {
-    const raw = fs.readFileSync(MANIFEST_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function writeManifest(data: any[]) {
-  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(data, null, 2), "utf-8");
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, BLOG_DIR),
-  filename: (_req, file, cb) => cb(null, file.originalname),
-});
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
     if (file.mimetype === "text/html" || file.originalname.endsWith(".html")) {
       cb(null, true);
@@ -44,12 +18,26 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-router.get("/", (_req: Request, res: Response) => {
-  const posts = readManifest();
-  res.json(posts);
+router.get("/", async (_req: Request, res: Response) => {
+  try {
+    const posts = await db
+      .select({
+        id: htmlBlogPosts.id,
+        slug: htmlBlogPosts.slug,
+        title: htmlBlogPosts.title,
+        description: htmlBlogPosts.description,
+        category: htmlBlogPosts.category,
+        publishedAt: htmlBlogPosts.publishedAt,
+      })
+      .from(htmlBlogPosts)
+      .orderBy(htmlBlogPosts.publishedAt);
+    res.json(posts);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
-router.post("/", upload.single("file"), (req: Request, res: Response) => {
+router.post("/", upload.single("file"), async (req: Request, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No HTML file provided" });
 
@@ -57,50 +45,45 @@ router.post("/", upload.single("file"), (req: Request, res: Response) => {
     if (!title || !slug) return res.status(400).json({ message: "Title and slug are required" });
 
     const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
-    const targetName = `${safeSlug}.html`;
-    const targetPath = path.join(BLOG_DIR, targetName);
+    const htmlContent = req.file.buffer.toString("utf-8");
 
-    if (req.file.originalname !== targetName) {
-      fs.renameSync(req.file.path, targetPath);
-    }
+    const existing = await db
+      .select({ id: htmlBlogPosts.id })
+      .from(htmlBlogPosts)
+      .where(eq(htmlBlogPosts.slug, safeSlug))
+      .limit(1);
 
-    const posts = readManifest();
-    const existing = posts.findIndex((p: any) => p.slug === safeSlug);
-    const entry = {
-      slug: safeSlug,
-      title,
-      description: description || "",
-      category: category || "General",
-      publishedAt: new Date().toISOString().split("T")[0],
-      filename: targetName,
-    };
-
-    if (existing >= 0) {
-      posts[existing] = entry;
+    let post;
+    if (existing.length > 0) {
+      const updated = await db
+        .update(htmlBlogPosts)
+        .set({ title, description: description || "", category: category || "General", htmlContent, updatedAt: new Date() })
+        .where(eq(htmlBlogPosts.slug, safeSlug))
+        .returning();
+      post = updated[0];
     } else {
-      posts.unshift(entry);
+      const inserted = await db
+        .insert(htmlBlogPosts)
+        .values({ slug: safeSlug, title, description: description || "", category: category || "General", htmlContent })
+        .returning();
+      post = inserted[0];
     }
 
-    writeManifest(posts);
-    res.json({ message: "Blog post published", post: entry });
+    res.json({ message: "Blog post published", post });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.delete("/:slug", (req: Request, res: Response) => {
+router.delete("/:slug", async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const posts = readManifest();
-    const idx = posts.findIndex((p: any) => p.slug === slug);
-    if (idx === -1) return res.status(404).json({ message: "Post not found" });
+    const deleted = await db
+      .delete(htmlBlogPosts)
+      .where(eq(htmlBlogPosts.slug, slug))
+      .returning({ id: htmlBlogPosts.id });
 
-    const post = posts[idx];
-    const filePath = path.join(BLOG_DIR, post.filename);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-    posts.splice(idx, 1);
-    writeManifest(posts);
+    if (deleted.length === 0) return res.status(404).json({ message: "Post not found" });
     res.json({ message: "Post deleted" });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

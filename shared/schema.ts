@@ -257,3 +257,18 @@ export type ProductCategory = typeof productCategories.$inferSelect;
 export type InsertProductCategory = typeof productCategories.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = typeof products.$inferInsert;
+
+export const htmlBlogPosts = pgTable("html_blog_posts", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 500 }).unique().notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).default("General"),
+  htmlContent: text("html_content").notNull(),
+  publishedAt: timestamp("published_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type HtmlBlogPost = typeof htmlBlogPosts.$inferSelect;
+export type InsertHtmlBlogPost = typeof htmlBlogPosts.$inferInsert;
