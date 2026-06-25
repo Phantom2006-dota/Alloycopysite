@@ -667,6 +667,10 @@ export const api = {
 
   htmlBlog: {
     list: () => request<any[]>("/html-blog"),
+    upload: (formData: FormData) =>
+      apiRequest<any>("/html-blog", { method: "POST", body: formData }),
+    remove: (slug: string) =>
+      apiRequest<any>(`/html-blog/${slug}`, { method: "DELETE" }),
   },
 };
 // [file content end]

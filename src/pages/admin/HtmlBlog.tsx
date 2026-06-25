@@ -36,25 +36,8 @@ export default function AdminHtmlBlog() {
     queryFn: () => api.htmlBlog.list(),
   });
 
-  const safeFetch = async (url: string, options: RequestInit) => {
-    const token = localStorage.getItem("auth_token");
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(options.headers || {}),
-      },
-    });
-    const text = await res.text();
-    let data: any = {};
-    try { data = text ? JSON.parse(text) : {}; } catch {}
-    if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`);
-    return data;
-  };
-
   const uploadMutation = useMutation({
-    mutationFn: (formData: FormData) =>
-      safeFetch("/api/html-blog", { method: "POST", body: formData }),
+    mutationFn: (formData: FormData) => api.htmlBlog.upload(formData),
     onSuccess: () => {
       toast.success("Blog post published successfully");
       queryClient.invalidateQueries({ queryKey: ["html-blog-posts"] });
@@ -64,8 +47,7 @@ export default function AdminHtmlBlog() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (slug: string) =>
-      safeFetch(`/api/html-blog/${slug}`, { method: "DELETE" }),
+    mutationFn: (slug: string) => api.htmlBlog.remove(slug),
     onSuccess: () => {
       toast.success("Post deleted");
       queryClient.invalidateQueries({ queryKey: ["html-blog-posts"] });
