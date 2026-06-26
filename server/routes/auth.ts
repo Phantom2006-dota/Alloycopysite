@@ -11,6 +11,9 @@ import {
 
 const router = Router();
 
+const ADMIN_USERNAME = "admin01";
+const ADMIN_PASSWORD = "admin1234";
+
 router.post("/login", async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
@@ -21,17 +24,16 @@ router.post("/login", async (req: Request, res: Response) => {
         .json({ message: "Username and password are required" });
     }
 
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username));
-
-    if (!user || !user.isActive) {
+    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, ADMIN_USERNAME));
+
+    if (!user || !user.isActive) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
