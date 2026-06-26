@@ -168,7 +168,7 @@ export default function BlogList() {
                   {(showHtmlPosts ? htmlPosts : filteredHtmlPosts).map((post: any) => (
                     <a
                       key={post.slug}
-                      href={`/blog/${post.slug}`}
+                      href={`/${post.slug}/`}
                       className="group block"
                     >
                       <Card className="h-full border shadow-sm hover:shadow-md transition-shadow">
