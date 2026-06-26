@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://alloycopysite-0pb4cg.fly.dev/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
