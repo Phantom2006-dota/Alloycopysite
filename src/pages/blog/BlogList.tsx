@@ -6,8 +6,9 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Clock, User, ArrowRight, Globe } from "lucide-react";
+import { Search, Clock, User } from "lucide-react";
 import { format } from "date-fns";
+import FeaturedGuides from "@/components/FeaturedGuides";
 
 export default function BlogList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,11 +37,6 @@ export default function BlogList() {
       }),
   });
 
-  const { data: htmlPosts = [] } = useQuery<any[]>({
-    queryKey: ["html-blog-posts"],
-    queryFn: () => api.htmlBlog.list(),
-  });
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchParams({ search: searchInput, page: "1" });
@@ -56,16 +52,7 @@ export default function BlogList() {
     setSearchParams(searchParams);
   };
 
-  const filteredHtmlPosts = htmlPosts.filter((p) => {
-    if (category && p.category?.toLowerCase() !== category.toLowerCase()) return false;
-    if (searchParams.get("search")) {
-      const q = searchParams.get("search")!.toLowerCase();
-      return p.title?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
-    }
-    return true;
-  });
-
-  const showHtmlPosts = !category && !searchParams.get("search") && page === 1;
+  const showGuides = !category && !searchParams.get("search") && page === 1;
 
   return (
     <Layout>
@@ -154,55 +141,8 @@ export default function BlogList() {
               </div>
             </div>
 
-            {/* HTML Blog Pages Section */}
-            {(showHtmlPosts || filteredHtmlPosts.length > 0) && htmlPosts.length > 0 && (
-              <div className="mb-12">
-                <div className="flex items-center gap-3 mb-6">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-                    Guides & Features
-                  </span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {(showHtmlPosts ? htmlPosts : filteredHtmlPosts).map((post: any) => (
-                    <a
-                      key={post.slug}
-                      href={`/${post.slug}/`}
-                      className="group block"
-                    >
-                      <Card className="h-full border shadow-sm hover:shadow-md transition-shadow">
-                        <div className="aspect-[4/3] rounded-t-lg overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center">
-                          <Globe className="h-16 w-16 text-amber-300 dark:text-amber-700 group-hover:scale-110 transition-transform duration-300" />
-                        </div>
-                        <CardContent className="p-4">
-                          {post.category && (
-                            <span className="text-xs font-medium uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-2 block">
-                              {post.category}
-                            </span>
-                          )}
-                          <h3 className="font-serif font-medium text-lg mb-2 group-hover:text-accent transition-colors line-clamp-2 leading-snug">
-                            {post.title}
-                          </h3>
-                          {post.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                              {post.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{format(new Date(post.publishedAt), "MMM d, yyyy")}</span>
-                            <span className="flex items-center gap-1 ml-auto text-accent font-medium">
-                              Read <ArrowRight className="h-3 w-3" />
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-                  ))}
-                </div>
-                <div className="h-px bg-border mb-8" />
-              </div>
-            )}
+            {/* Guides & Features — static frontend cards */}
+            {showGuides && <FeaturedGuides />}
 
             {/* Regular Articles */}
             {isLoading ? (
