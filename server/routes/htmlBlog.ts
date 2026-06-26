@@ -3,6 +3,7 @@ import multer from "multer";
 import { db } from "../db";
 import { htmlBlogPosts } from "../../shared/schema";
 import { eq } from "drizzle-orm";
+import { authenticateToken, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
@@ -41,7 +42,7 @@ router.get("/", async (_req: Request, res: Response) => {
   }
 });
 
-router.post("/", upload.single("file"), async (req: Request, res: Response) => {
+router.post("/", authenticateToken, upload.single("file"), async (req: AuthRequest, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No HTML file provided" });
 
@@ -79,7 +80,7 @@ router.post("/", upload.single("file"), async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/:slug", async (req: Request, res: Response) => {
+router.delete("/:slug", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { slug } = req.params;
     const deleted = await db

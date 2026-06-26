@@ -144,7 +144,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
   });
 });
 
-const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook", "/api/html-blog/ping"];
+const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook", "/api/html-blog/ping", "/api/html-blog"];
 
 const conditionalValidateApiKey = (req: Request, res: Response, next: NextFunction) => {
   const path = req.path;
