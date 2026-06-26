@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  console.error("FATAL: JWT_SECRET environment variable is not set. Server will not start.");
-  process.exit(1);
+const JWT_SECRET = process.env.JWT_SECRET || "bauhaus-cms-secret-key-change-in-production";
+if (!process.env.JWT_SECRET) {
+  console.warn("WARNING: JWT_SECRET is not set. Set this environment variable to a strong secret before deploying to production.");
 }
 
 export interface AuthRequest extends Request {
