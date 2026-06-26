@@ -82,73 +82,21 @@ app.use(
 // Add request logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  const originalUrl = req.originalUrl;
-  const method = req.method;
-
-  // Log the request start
-  console.log(
-    `\n📥 [${new Date().toISOString()}] ${method} ${originalUrl} - START`,
-  );
-
-  // Log request body for POST/PUT requests (but not for file uploads)
-  if (
-    (method === "POST" || method === "PUT") &&
-    !req.originalUrl.includes("/uploads")
-  ) {
-    const oldWrite = res.write;
-    const oldEnd = res.end;
-    const chunks: any[] = [];
-
-    // @ts-ignore
-    res.write = function (chunk: any) {
-      chunks.push(chunk);
-      // @ts-ignore
-      return oldWrite.apply(this, arguments);
-    };
-
-    // @ts-ignore
-    res.end = function (chunk: any) {
-      if (chunk) {
-        chunks.push(chunk);
-      }
-
-      const duration = Date.now() - start;
-      const body = Buffer.concat(chunks).toString("utf8");
-
-      // Log response
-      console.log(
-        `📤 [${new Date().toISOString()}] ${method} ${originalUrl} - ${res.statusCode} (${duration}ms)`,
-      );
-
-      if (res.statusCode >= 400 && body) {
-        try {
-          const jsonBody = JSON.parse(body);
-          console.error(`❌ Error Response:`, jsonBody);
-        } catch (e) {
-          console.error(`❌ Error Response (raw):`, body.substring(0, 500));
-        }
-      }
-
-      // @ts-ignore
-      return oldEnd.apply(this, arguments);
-    };
-  } else {
-    // For other requests, just log completion
-    res.on("finish", () => {
-      const duration = Date.now() - start;
-      console.log(
-        `📤 [${new Date().toISOString()}] ${method} ${originalUrl} - ${res.statusCode} (${duration}ms)`,
-      );
-    });
-  }
-
+  const { originalUrl, method } = req;
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.log(
+      `[${new Date().toISOString()}] ${method} ${originalUrl} - ${res.statusCode} (${duration}ms)`,
+    );
+  });
   next();
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Debug test route
+// Debug routes — development only
+if (process.env.NODE_ENV === "development") {
 app.get("/api/debug/test", (_req: Request, res: Response) => {
   console.log("✅ Debug route called at", new Date().toISOString());
   res.json({
@@ -176,12 +124,6 @@ app.get("/api/debug/test", (_req: Request, res: Response) => {
 
 // Simple echo route for testing POST requests
 app.post("/api/debug/echo", (req: Request, res: Response) => {
-  console.log("📨 Echo request received:", {
-    body: req.body,
-    headers: req.headers,
-    files: (req as any).file ? "File present" : "No file",
-  });
-
   res.json({
     message: "Echo received",
     yourData: req.body,
@@ -189,6 +131,7 @@ app.post("/api/debug/echo", (req: Request, res: Response) => {
     contentType: req.headers["content-type"],
   });
 });
+} // end development-only debug routes
 
 app.get("/api/health", (_req: Request, res: Response) => {
   console.log("🏥 Health check called");
@@ -260,18 +203,20 @@ app.get("/blog/:slug", async (req: Request, res: Response, next: NextFunction) =
   next();
 });
 
-// Route to check environment variables (for debugging, remove in production)
-app.get("/api/debug/env", (_req: Request, res: Response) => {
-  res.json({
-    port: PORT,
-    node_env: process.env.NODE_ENV,
-    backend_mode: process.env.BACKEND_MODE,
-    allowed_origins: allowedOrigins,
-    cloudinary_configured: !!process.env.CLOUDINARY_CLOUD_NAME,
-    database_configured: !!process.env.DATABASE_URL,
-    api_key_configured: !!process.env.CMS_API_KEY,
+if (process.env.NODE_ENV === "development") {
+  // Route to check environment variables (development only)
+  app.get("/api/debug/env", (_req: Request, res: Response) => {
+    res.json({
+      port: PORT,
+      node_env: process.env.NODE_ENV,
+      backend_mode: process.env.BACKEND_MODE,
+      allowed_origins: allowedOrigins,
+      cloudinary_configured: !!process.env.CLOUDINARY_CLOUD_NAME,
+      database_configured: !!process.env.DATABASE_URL,
+      api_key_configured: !!process.env.CMS_API_KEY,
+    });
   });
-});
+}
 
 // Custom 404 handler for API routes
 app.use("/api", (_req: Request, res: Response) => {
@@ -287,14 +232,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
   const message = err.message || "Something went wrong";
 
-  console.error("\n🔥 GLOBAL ERROR HANDLER:");
-  console.error("Status:", status);
-  console.error("Message:", message);
-  console.error("Stack:", err.stack);
-  console.error("Request URL:", _req.originalUrl);
-  console.error("Request Method:", _req.method);
-  console.error("Request Body:", _req.body);
-  console.error("\n");
+  console.error(`[ERROR] ${_req.method} ${_req.originalUrl} - ${status}: ${message}`);
 
   res.status(status).json({
     message,
