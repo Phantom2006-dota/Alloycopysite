@@ -1,9 +1,10 @@
+import { Link } from "react-router-dom";
 import { ArrowRight, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const GUIDES = [
   {
-    href: "/things-to-do-in-lagos-nigeria/",
+    href: "/things-to-do-in-lagos-nigeria",
     category: "Travel Guide",
     title: "Things to Do in Lagos Nigeria: The Cultural Tourism Guide 2026",
     description:
@@ -11,7 +12,7 @@ const GUIDES = [
     date: "2026",
   },
   {
-    href: "/nigerian-books-to-read/",
+    href: "/nigerian-books-to-read",
     category: "Books",
     title: "Nigerian Books to Read: The Essential List for 2026",
     description:
@@ -33,7 +34,7 @@ export default function FeaturedGuides() {
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         {GUIDES.map((guide) => (
-          <a key={guide.href} href={guide.href} className="group block">
+          <Link key={guide.href} to={guide.href} className="group block">
             <Card className="h-full border shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-[4/3] rounded-t-lg overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center">
                 <Globe className="h-16 w-16 text-amber-300 dark:text-amber-700 group-hover:scale-110 transition-transform duration-300" />
@@ -56,7 +57,7 @@ export default function FeaturedGuides() {
                 </div>
               </CardContent>
             </Card>
-          </a>
+          </Link>
         ))}
       </div>
 
