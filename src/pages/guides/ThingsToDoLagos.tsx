@@ -126,7 +126,8 @@ export default function ThingsToDoLagos() {
               ))}
             </div>
             <p className="text-sm font-light text-gray-400 leading-relaxed">Detty December runs from mid-November to early January. The Nigerian diaspora returns from the UK, the US, Canada, Australia, and Europe for concerts, beach parties, owambes, and cultural events that fill every venue in the city.</p>
-            <p className="text-sm font-light text-gray-400 leading-relaxed">The 2025 season was the largest on record. <strong className="font-medium text-gray-300">The United States overtook the United Kingdom as the top source market for the first time</strong>, with American arrivals at 27 percent of all international visitors.</p>
+            <p className="text-sm font-light text-gray-400 leading-relaxed">The 2025 season was the largest on record. <strong className="font-medium text-gray-300">The United States overtook the United Kingdom as the top source market for the first time</strong>, with American arrivals at 27 percent of all international visitors. Diaspora travellers spent an estimated $384.5 million on air travel alone to get here.</p>
+            <p className="text-sm font-light text-gray-400 leading-relaxed">CNN and the BBC have compared it to New Orleans' Mardi Gras in cultural and economic scale. This is not just a party. It is a diaspora asserting its relationship to home in one concentrated season.</p>
             <p className="text-sm font-light text-gray-400 leading-relaxed">One honest note from our Ilupeju office: pricing during Detty December can be extreme. Book accommodation by September. Agree prices before committing.</p>
             <div className="bg-amber-600/10 border border-amber-600/25 rounded p-3 text-sm text-amber-500">
               <strong>The city is worth it. The exploitation is a separate problem.</strong> Come prepared and you will have a better time than any social media post suggests.

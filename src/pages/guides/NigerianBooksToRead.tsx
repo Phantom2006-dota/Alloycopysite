@@ -45,7 +45,7 @@ export default function NigerianBooksToRead() {
             <div className="space-y-3 text-sm font-light text-gray-400 leading-relaxed">
               <p>18th-century Lagos. Oba Akinsemoyin sits on the throne by right. His lords obey him at their pleasure.</p>
               <p>Inside the palace lies a more dangerous problem: he has no true heir. Only a boy whose origin is a secret that could unmake his bloodline. To protect both crown and bloodline, Akinsemoyin calls in foreign power. Men and cannons cross the waters of Eko.</p>
-              <p>Within the palace, Erelu Kuti moves with precision, shaping outcomes in a world ruled by men. Beyond the walls, Lufaderin has waited seven years for a child. When he finally comes, something is wrong.</p>
+              <p>Within the palace, Erelu Kuti moves with precision, shaping outcomes in a world ruled by men. Beyond the walls, Lufaderin has waited seven years for a child. When he finally comes, something is wrong. The visions that once guided her fall silent. Her husband grows distant.</p>
               <p>And the future returns only in fragments: fire in the streets, a crown trampled underfoot. As war closes in and the king's own lords begin to conspire against him, the fates of ruler and seer begin to converge. In Eko, nothing remains hidden forever. And when the lagoon decides, it decides for everyone.</p>
             </div>
             <Link to="/shop" className="inline-block px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-500 transition-colors">
