@@ -101,11 +101,23 @@ export default function ThingsToDoLagos() {
               ))}
             </div>
             <p className="text-sm font-light text-muted-foreground leading-relaxed">Ojude Oba means the King's Forecourt in Yoruba. The festival is held annually in Ijebu-Ode, Ogun State, on the third day after Eid el-Kabir. The 2026 edition was held on Friday May 29 at the Awujale Pavilion and Palace grounds.</p>
-            <p className="text-sm font-light text-muted-foreground leading-relaxed">The festival began as an Islamic thanksgiving gathering where early Muslim converts paid homage to the Awujale of Ijebuland. <strong className="font-medium text-foreground">Over 90 regberegbe age-grade groups</strong> process in Aso-Oke, gele headwraps, and agbada. The 2026 edition carried particular weight — the first since the death of the late Awujale Oba Sikiru Kayode Adetona in July 2025, after a 65-year reign.</p>
-            <p className="text-sm font-light text-muted-foreground leading-relaxed">Ijebu-Ode is approximately 80 kilometres from Lagos Island, around 1.5 to 2 hours by road. Most visitors hire a driver for the day.</p>
+            <p className="text-sm font-light text-muted-foreground leading-relaxed">The festival began as an Islamic thanksgiving gathering where early Muslim converts paid homage to the Awujale of Ijebuland. <strong className="font-medium text-foreground">Over 90 regberegbe age-grade groups</strong> process in Aso-Oke, gele headwraps, and agbada. Ornately dressed horse riders from the Balogun warrior families move through the grounds. The traditional fashion on display is some of the most spectacular in Nigeria.</p>
+            <p className="text-sm font-light text-muted-foreground leading-relaxed">The 2026 edition carried particular weight. It was the first Ojude Oba since the death of the late Awujale Oba Sikiru Kayode Adetona in July 2025, after a 65-year reign. The theme was "Celebrating the Legacy of Oba Sikiru Adetona." Hotels in Ijebu-Ode were fully occupied.</p>
+            <p className="text-sm font-light text-muted-foreground leading-relaxed">Ijebu-Ode is approximately 80 kilometres from Lagos Island, around 1.5 to 2 hours by road. Most visitors hire a driver for the day or join organised excursions from Lagos.</p>
             <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm text-amber-700">
               <strong>Plan ahead for 2027:</strong> The festival date shifts annually. Confirm the exact date about two months ahead and book accommodation immediately. The town fills completely.
             </div>
+          </div>
+
+          {/* EMAIL SIGNUP */}
+          <div className="bg-muted border border-t-4 border-t-amber-600 rounded p-8 text-center space-y-4">
+            <h3 className="font-serif text-xl font-semibold text-foreground">We are publishing a Lagos cultural guide</h3>
+            <p className="text-sm font-light text-muted-foreground max-w-md mx-auto leading-relaxed">Bauhaus Production is working on a book covering Lagos, Ojude Oba, Calabar, and Nigeria's cultural heritage sites, written for diaspora visitors returning home. Join the reader list for early access. No spam. Just the book.</p>
+            <div className="flex gap-2 max-w-sm mx-auto flex-wrap justify-center">
+              <input type="email" placeholder="Your email address" className="flex-1 min-w-[180px] px-3 py-2.5 border rounded text-sm bg-background outline-none focus:border-amber-600" />
+              <button className="px-5 py-2.5 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-500 transition-colors">Notify Me First</button>
+            </div>
+            <p className="text-[11px] text-muted-foreground">From Bauhaus Production, Ilupeju Lagos and Northampton UK · Unsubscribe any time</p>
           </div>
 
           {/* DETTY DECEMBER */}
@@ -128,7 +140,7 @@ export default function ThingsToDoLagos() {
             <p className="text-sm font-light text-gray-400 leading-relaxed">Detty December runs from mid-November to early January. The Nigerian diaspora returns from the UK, the US, Canada, Australia, and Europe for concerts, beach parties, owambes, and cultural events that fill every venue in the city.</p>
             <p className="text-sm font-light text-gray-400 leading-relaxed">The 2025 season was the largest on record. <strong className="font-medium text-gray-300">The United States overtook the United Kingdom as the top source market for the first time</strong>, with American arrivals at 27 percent of all international visitors. Diaspora travellers spent an estimated $384.5 million on air travel alone to get here.</p>
             <p className="text-sm font-light text-gray-400 leading-relaxed">CNN and the BBC have compared it to New Orleans' Mardi Gras in cultural and economic scale. This is not just a party. It is a diaspora asserting its relationship to home in one concentrated season.</p>
-            <p className="text-sm font-light text-gray-400 leading-relaxed">One honest note from our Ilupeju office: pricing during Detty December can be extreme. Book accommodation by September. Agree prices before committing.</p>
+            <p className="text-sm font-light text-gray-400 leading-relaxed">One honest note from our Ilupeju office: pricing during Detty December can be extreme. Some accommodation tripled. Some venues increased ticket prices sixfold. Book accommodation by September. Agree prices before committing. Build genuine budget flexibility.</p>
             <div className="bg-amber-600/10 border border-amber-600/25 rounded p-3 text-sm text-amber-500">
               <strong>The city is worth it. The exploitation is a separate problem.</strong> Come prepared and you will have a better time than any social media post suggests.
             </div>
@@ -223,7 +235,7 @@ const experiences = [
     meta: "Onikan, Lagos Island · Daily, 9am to 5pm",
     body: [
       "An architectural landmark built to immerse visitors in Yoruba philosophy, history, and heritage through high-technology exhibitions. The historic swimming pool on the grounds dates to 1928.",
-      "Yoruba civilisation is one of the world's most complex and historically significant cultures. Its theology, political structure, and oral tradition shaped not only Nigeria but the African diaspora across the Americas.",
+      "Yoruba civilisation is one of the world's most complex and historically significant cultures. Its theology, political structure, and oral tradition shaped not only Nigeria but the African diaspora across the Americas. This centre is the first in Lagos to present that at the scale it deserves.",
       "For second-generation Nigerians who grew up outside Yorubaland, this is the place to begin.",
     ],
     meaning: "Understanding Yoruba civilisation from inside its own philosophy is what this centre makes possible. No other institution in Lagos does this as completely.",
@@ -234,7 +246,8 @@ const experiences = [
     meta: "Old Prison Grounds, Lagos Island · Daily, 12pm to 10pm",
     body: [
       "A colonial prison built in 1872 to hold Nigerians who resisted British rule, transformed into Lagos's most atmospheric cultural space.",
-      "The original cell walls stand intact alongside open-air stages where jazz, spoken word, and theatre happen most evenings. Come in the late afternoon. Stay for whatever is playing on the main stage.",
+      "The original cell walls stand intact alongside open-air stages where jazz, spoken word, and theatre happen most evenings. The architecture of containment and the architecture of liberation occupy the same ground.",
+      "Come in the late afternoon. Stay for whatever is playing on the main stage.",
     ],
     meaning: "This site makes the physical structure of colonial control visible, then asks you to enjoy a concert inside it. It is one of the most honest cultural spaces Lagos has built.",
   },
@@ -255,7 +268,7 @@ const experiences = [
     meta: "Elegushi Road, Lekki Phase 1 · Daily, 10am to 7pm",
     body: [
       "Chief Nike Davies-Okundaye's gallery across four floors is one of the largest private art galleries in Africa. Over 8,000 works from Nigerian artists across generations, plus textiles, sculptures, and live demonstrations of traditional craft.",
-      "The gallery does not feel like a museum. It feels like a living archive. Plan at least two hours.",
+      "The gallery does not feel like a museum. It feels like a living archive. Plan at least two hours. Many diaspora visitors return more than once.",
     ],
     meaning: "Nigerian visual art runs from ancient Nok terracotta and Benin bronzes to the painters working in Lagos today. This gallery holds more of that continuum in one building than anywhere else in the city.",
   },
@@ -265,7 +278,7 @@ const experiences = [
     meta: "Lekki Peninsula · Daily, 8am to 5pm",
     body: [
       "A 78-hectare urban nature reserve in the heart of Lekki. Home to Africa's longest canopy walkway at 401 metres, suspended above wetlands where monkeys, rare birds, and crocodiles live below.",
-      "Most visitors to Lagos do not know this exists. Quiet, green, and genuinely spectacular from height.",
+      "Most visitors to Lagos do not know this exists. Quiet, green, and genuinely spectacular from height. Go on a weekday morning for the most peaceful experience.",
     ],
     meaning: "Lagos before the city. The wetlands that surrounded the original Eko settlement still exist here. Standing on the canopy walkway, you see what the lagoon landscape looked like before the concrete arrived.",
   },
@@ -292,11 +305,11 @@ const experiences = [
 ];
 
 const practical = [
-  { icon: "🚗", text: "<strong class='font-medium text-foreground'>Transport:</strong> Use Uber or Bolt exclusively. Both work reliably across Lagos Island and the mainland. Budget serious time for traffic. A 10-kilometre journey can take 90 minutes at peak hours. Water taxis between Marina and Takwa Bay are faster for island movement." },
-  { icon: "🏨", text: "<strong class='font-medium text-foreground'>Where to stay:</strong> Victoria Island and Ikoyi for first-time visitors. Closest to cultural sites, reliable power, better security. Lekki for easy access to the Conservation Centre." },
+  { icon: "🚗", text: "<strong class='font-medium text-foreground'>Transport:</strong> Use Uber or Bolt exclusively. Both work reliably across Lagos Island and the mainland. Budget serious time for traffic. A 10-kilometre journey can take 90 minutes at peak hours. Water taxis between Marina and Takwa Bay are faster for island movement. For Ijebu-Ode and Ojude Oba, hire a driver for the full day." },
+  { icon: "🏨", text: "<strong class='font-medium text-foreground'>Where to stay:</strong> Victoria Island and Ikoyi for first-time visitors. Closest to cultural sites, reliable power, better security. Lekki for easy access to the Conservation Centre. For Ojude Oba, book in Ijebu-Ode weeks ahead or make it a day trip from Lagos." },
   { icon: "💰", text: "<strong class='font-medium text-foreground'>Money:</strong> Naira cash is essential for local experiences. Markets, bukas, suya spots, and many smaller venues do not take cards. Inform your bank before travelling. Convert through official channels only." },
-  { icon: "📱", text: "<strong class='font-medium text-foreground'>SIM card:</strong> Buy an MTN or Airtel SIM at the airport on arrival. Data is fast and cheap, significantly better than many European cities." },
-  { icon: "🤝", text: "<strong class='font-medium text-foreground'>The city:</strong> Lagosians are direct, warm, and commercially sharp. The city rewards visitors who engage with curiosity rather than anxiety. The city is not as dangerous as people who have never been here tend to describe it." },
+  { icon: "📱", text: "<strong class='font-medium text-foreground'>SIM card:</strong> Buy an MTN or Airtel SIM at the airport on arrival. Data is fast and cheap, significantly better than many European cities. Your UK or US number will work but roaming costs are high." },
+  { icon: "🤝", text: "<strong class='font-medium text-foreground'>The city:</strong> Lagosians are direct, warm, and commercially sharp. The city rewards visitors who engage with curiosity rather than anxiety. The Lagos instinct to assist a visitor is genuine. The city is not as dangerous as people who have never been here tend to describe it." },
 ];
 
 const faqs = [
@@ -331,7 +344,7 @@ const faqs = [
   {
     q: "How do I get from Lagos to Ojude Oba in Ijebu-Ode?",
     a: [
-      "Ijebu-Ode is approximately 80 kilometres from Lagos Island, around 1.5 to 2 hours by road via the Sagamu-Ore Expressway. Most visitors hire a driver for the day.",
+      "Ijebu-Ode is approximately 80 kilometres from Lagos Island, around 1.5 to 2 hours by road via the Sagamu-Ore Expressway. Most visitors hire a driver for the day or join organised excursions from Lagos.",
       "Book accommodation in Ijebu-Ode well in advance if staying overnight. Many visitors make it a day trip from Lagos by leaving early morning.",
     ],
   },

@@ -90,7 +90,7 @@ export default function NigerianBooksToRead() {
           <div className="bg-foreground rounded p-7 space-y-3">
             <p className="text-[10px] font-medium tracking-widest uppercase text-amber-500">From Our Lagos Office</p>
             <p className="text-sm font-light text-gray-400 leading-relaxed">We read Nigerian literature from Ilupeju, Lagos, where many of these stories are set. When Braithwaite writes Lagos nurses navigating impossible siblings, or when Adebayo writes about what polygamous households feel from the inside, these are not exotic settings for us.</p>
-            <p className="text-sm font-light text-gray-400 leading-relaxed">That is the perspective we bring to curating Nigerian books for the diaspora. Not a Western gaze explaining Nigeria outward, but a Nigerian publisher connecting the diaspora back in.</p>
+            <p className="text-sm font-light text-gray-400 leading-relaxed">That is the perspective we bring to curating Nigerian books for the diaspora. Not a Western gaze explaining Nigeria outward, but a Nigerian publisher connecting the diaspora back in. Browse our catalogue at <a href="https://www.bauhausproduction.com" className="text-amber-500 hover:underline">bauhausproduction.com</a>.</p>
           </div>
 
           {/* FOUNDATION */}
@@ -234,7 +234,7 @@ const diasporaBooks = [
     author: "Chimamanda Ngozi Adichie", meta: "2013 · 182,000 Goodreads ratings",
     body: [
       "A Nigerian woman leaves for America. Her boyfriend takes a different route to London. Years pass. Lives change. The question of whether they can find each other again shapes everything.",
-      "Adichie's account of race as something her protagonist encounters for the first time in America remains the most accurate written description of that specific cultural shift.",
+      "Adichie's account of race as something her protagonist encounters for the first time in America remains the most accurate written description of that specific cultural shift. Diaspora Nigerians recognise it immediately.",
     ],
     why: "The single most important entry point into Nigerian diaspora literature.",
   },
