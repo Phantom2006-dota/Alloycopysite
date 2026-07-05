@@ -1,0 +1,2 @@
+- [Neon HTTP null-rows bug](neon-http-null-rows.md) — neon-http v1.1.0 crashes on zero-row JOIN results; patch r.rows??[] in index.mjs; lost on reinstall.
+- [Hono/Cloudflare Workers migration](hono-cloudflare-migration.md) — Express→Hono conversion patterns, schema gotchas (events/media fields), Workers deployment checklist.

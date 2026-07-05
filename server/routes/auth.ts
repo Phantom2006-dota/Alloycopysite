@@ -1,243 +1,101 @@
-import { Router, Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import { db } from "../db";
-import { users } from "../../shared/schema";
-import { eq } from "drizzle-orm";
-import {
-  generateToken,
-  authenticateToken,
-  AuthRequest,
-} from "../middleware/auth";
+import { Hono } from 'hono'
+import bcrypt from 'bcryptjs'
+import { db } from '../db'
+import { users } from '../../shared/schema'
+import { eq } from 'drizzle-orm'
+import { generateToken, authenticateToken } from '../middleware/auth'
+import type { AppEnv } from '../types'
 
-const router = Router();
+const ADMIN_USERNAME = 'admin01'
+const ADMIN_PASSWORD = 'admin1234'
 
-const ADMIN_USERNAME = "admin01";
-const ADMIN_PASSWORD = "admin1234";
+const app = new Hono<AppEnv>()
 
-router.post("/login", async (req: Request, res: Response) => {
+app.post('/login', async (c) => {
   try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ message: "Username and password are required" });
-    }
+    const { username, password } = await c.req.json()
+    if (!username || !password) return c.json({ message: 'Username and password are required' }, 400)
 
     if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return c.json({ message: 'Invalid credentials' }, 401)
     }
 
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, ADMIN_USERNAME));
+    const [user] = await db.select().from(users).where(eq(users.username, ADMIN_USERNAME))
+    if (!user || !user.isActive) return c.json({ message: 'Invalid credentials' }, 401)
 
-    if (!user || !user.isActive) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = generateToken({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    });
-
-    res.json({
+    const token = generateToken({ id: user.id, username: user.username, email: user.email, role: user.role })
+    return c.json({
       token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        profileImage: user.profileImage,
-      },
-    });
+      user: { id: user.id, username: user.username, email: user.email, name: user.name, role: user.role, profileImage: user.profileImage },
+    })
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Login error:', error)
+    return c.json({ message: 'Server error' }, 500)
   }
-});
+})
 
-router.post("/register", async (req: Request, res: Response) => {
+app.post('/register', async (c) => {
   try {
-    const { username, email, password, name } = req.body;
+    const { username, email, password, name } = await c.req.json()
+    if (!username || !email || !password || !name) return c.json({ message: 'All fields are required' }, 400)
 
-    if (!username || !email || !password || !name) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    const existingUser = await db.select().from(users).where(eq(users.username, username))
+    if (existingUser.length > 0) return c.json({ message: 'Username already exists' }, 400)
 
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username));
-    if (existingUser.length > 0) {
-      return res.status(400).json({ message: "Username already exists" });
-    }
+    const existingEmail = await db.select().from(users).where(eq(users.email, email))
+    if (existingEmail.length > 0) return c.json({ message: 'Email already exists' }, 400)
 
-    const existingEmail = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-    if (existingEmail.length > 0) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
-
-    // Always hash password on registration
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    const hashedPassword = await bcrypt.hash(password, 10)
     const [newUser] = await db
       .insert(users)
-      .values({
-        username,
-        email,
-        password: hashedPassword,
-        name,
-        role: "contributor",
-        isActive: true,
-      })
-      .returning();
+      .values({ username, email, password: hashedPassword, name, role: 'contributor', isActive: true })
+      .returning()
 
-    const token = generateToken({
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-      role: newUser.role,
-    });
-
-    res.status(201).json({
-      token,
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role,
-      },
-    });
+    const token = generateToken({ id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role })
+    return c.json({ token, user: { id: newUser.id, username: newUser.username, email: newUser.email, name: newUser.name, role: newUser.role } }, 201)
   } catch (error) {
-    console.error("Register error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Register error:', error)
+    return c.json({ message: 'Server error' }, 500)
   }
-});
+})
 
-router.get(
-  "/me",
-  authenticateToken,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
+app.get('/me', authenticateToken, async (c) => {
+  try {
+    const { id } = c.get('user')
+    const [user] = await db.select().from(users).where(eq(users.id, id))
+    if (!user) return c.json({ message: 'User not found' }, 404)
+    return c.json({
+      id: user.id, username: user.username, email: user.email, name: user.name,
+      role: user.role, bio: user.bio, profileImage: user.profileImage, socialLinks: user.socialLinks,
+    })
+  } catch (error) {
+    console.error('Me error:', error)
+    return c.json({ message: 'Server error' }, 500)
+  }
+})
 
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, req.user.id));
+app.put('/profile', authenticateToken, async (c) => {
+  try {
+    const { id } = c.get('user')
+    const { name, email, bio, profileImage, socialLinks } = await c.req.json()
+    const updates: Record<string, any> = {}
+    if (name !== undefined) updates.name = name
+    if (email !== undefined) updates.email = email
+    if (bio !== undefined) updates.bio = bio
+    if (profileImage !== undefined) updates.profileImage = profileImage
+    if (socialLinks !== undefined) updates.socialLinks = socialLinks
 
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+    const [updatedUser] = await db.update(users).set(updates).where(eq(users.id, id)).returning()
+    return c.json({
+      id: updatedUser.id, username: updatedUser.username, email: updatedUser.email, name: updatedUser.name,
+      role: updatedUser.role, bio: updatedUser.bio, profileImage: updatedUser.profileImage, socialLinks: updatedUser.socialLinks,
+    })
+  } catch (error) {
+    console.error('Update profile error:', error)
+    return c.json({ message: 'Server error' }, 500)
+  }
+})
 
-      res.json({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        bio: user.bio,
-        profileImage: user.profileImage,
-        socialLinks: user.socialLinks,
-      });
-    } catch (error) {
-      console.error("Get user error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-);
+app.post('/logout', (c) => c.json({ message: 'Logged out successfully' }))
 
-// ADD THIS NEW ROUTE: Password reset endpoint for admin
-router.post(
-  "/reset-password",
-  authenticateToken,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const { userId, newPassword } = req.body;
-
-      if (
-        !req.user ||
-        (req.user.role !== "super_admin" && req.user.id !== parseInt(userId))
-      ) {
-        return res.status(403).json({ message: "Insufficient permissions" });
-      }
-
-      if (!newPassword || newPassword.length < 6) {
-        return res
-          .status(400)
-          .json({ message: "Password must be at least 6 characters" });
-      }
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      await db
-        .update(users)
-        .set({ password: hashedPassword })
-        .where(eq(users.id, parseInt(userId)));
-
-      res.json({ message: "Password updated successfully" });
-    } catch (error) {
-      console.error("Reset password error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-);
-
-// ADD THIS NEW ROUTE: Update user profile
-router.put(
-  "/profile",
-  authenticateToken,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
-      const { name, email, bio, profileImage, socialLinks } = req.body;
-
-      const updates: any = {};
-      if (name !== undefined) updates.name = name;
-      if (email !== undefined) updates.email = email;
-      if (bio !== undefined) updates.bio = bio;
-      if (profileImage !== undefined) updates.profileImage = profileImage;
-      if (socialLinks !== undefined) updates.socialLinks = socialLinks;
-
-      const [updatedUser] = await db
-        .update(users)
-        .set(updates)
-        .where(eq(users.id, req.user.id))
-        .returning();
-
-      res.json({
-        id: updatedUser.id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        name: updatedUser.name,
-        role: updatedUser.role,
-        bio: updatedUser.bio,
-        profileImage: updatedUser.profileImage,
-        socialLinks: updatedUser.socialLinks,
-      });
-    } catch (error) {
-      console.error("Update profile error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-);
-
-router.post("/logout", (_req: Request, res: Response) => {
-  res.json({ message: "Logged out successfully" });
-});
-
-export default router;
+export default app
