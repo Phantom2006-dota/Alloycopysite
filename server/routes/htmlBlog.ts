@@ -1,15 +1,29 @@
-import { Hono } from 'hono'
-import { db } from '../db'
-import { htmlBlogPosts } from '../../shared/schema'
-import { eq } from 'drizzle-orm'
-import { authenticateToken } from '../middleware/auth'
-import type { AppEnv } from '../types'
+import { Router, Request, Response } from "express";
+import multer from "multer";
+import { db } from "../db";
+import { htmlBlogPosts } from "../../shared/schema";
+import { eq } from "drizzle-orm";
+import { authenticateToken, AuthRequest } from "../middleware/auth";
 
-const app = new Hono<AppEnv>()
+const router = Router();
 
-app.get('/ping', (c) => c.json({ status: 'ok', route: 'html-blog', version: '2.0.0' }))
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "text/html" || file.originalname.endsWith(".html")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only HTML files are allowed"));
+    }
+  },
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
-app.get('/', async (c) => {
+router.get("/ping", (_req: Request, res: Response) => {
+  res.json({ status: "ok", route: "html-blog", version: "2.0.0" });
+});
+
+router.get("/", async (_req: Request, res: Response) => {
   try {
     const posts = await db
       .select({
@@ -21,65 +35,64 @@ app.get('/', async (c) => {
         publishedAt: htmlBlogPosts.publishedAt,
       })
       .from(htmlBlogPosts)
-      .orderBy(htmlBlogPosts.publishedAt)
-    return c.json(posts)
+      .orderBy(htmlBlogPosts.publishedAt);
+    res.json(posts);
   } catch (error: any) {
-    return c.json({ message: error.message }, 500)
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
-app.post('/', authenticateToken, async (c) => {
+router.post("/", authenticateToken, upload.single("file"), async (req: AuthRequest, res: Response) => {
   try {
-    const body = await c.req.parseBody()
-    const file = body['file']
+    if (!req.file) return res.status(400).json({ message: "No HTML file provided" });
 
-    if (!file || !(file instanceof File)) return c.json({ message: 'No HTML file provided' }, 400)
-    if (file.type !== 'text/html' && !file.name.endsWith('.html')) {
-      return c.json({ message: 'Only HTML files are allowed' }, 400)
-    }
-    if (file.size > 10 * 1024 * 1024) return c.json({ message: 'File too large (max 10MB)' }, 400)
+    const { title, slug, description, category } = req.body;
+    if (!title || !slug) return res.status(400).json({ message: "Title and slug are required" });
 
-    const title = body['title'] as string
-    const slug = body['slug'] as string
-    const description = (body['description'] as string) || ''
-    const category = (body['category'] as string) || 'General'
+    const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    const htmlContent = req.file.buffer.toString("utf-8");
 
-    if (!title || !slug) return c.json({ message: 'Title and slug are required' }, 400)
+    const existing = await db
+      .select({ id: htmlBlogPosts.id })
+      .from(htmlBlogPosts)
+      .where(eq(htmlBlogPosts.slug, safeSlug))
+      .limit(1);
 
-    const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
-    const htmlContent = await file.text()
-
-    const existing = await db.select({ id: htmlBlogPosts.id }).from(htmlBlogPosts).where(eq(htmlBlogPosts.slug, safeSlug)).limit(1)
-
-    let post
+    let post;
     if (existing.length > 0) {
-      const updated = await db.update(htmlBlogPosts)
-        .set({ title, description, category, htmlContent, updatedAt: new Date() })
+      const updated = await db
+        .update(htmlBlogPosts)
+        .set({ title, description: description || "", category: category || "General", htmlContent, updatedAt: new Date() })
         .where(eq(htmlBlogPosts.slug, safeSlug))
-        .returning()
-      post = updated[0]
+        .returning();
+      post = updated[0];
     } else {
-      const inserted = await db.insert(htmlBlogPosts)
-        .values({ slug: safeSlug, title, description, category, htmlContent })
-        .returning()
-      post = inserted[0]
+      const inserted = await db
+        .insert(htmlBlogPosts)
+        .values({ slug: safeSlug, title, description: description || "", category: category || "General", htmlContent })
+        .returning();
+      post = inserted[0];
     }
 
-    return c.json({ message: 'Blog post published', post })
+    res.json({ message: "Blog post published", post });
   } catch (error: any) {
-    return c.json({ message: error.message }, 500)
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
-app.delete('/:slug', authenticateToken, async (c) => {
+router.delete("/:slug", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    const slug = c.req.param('slug')
-    const deleted = await db.delete(htmlBlogPosts).where(eq(htmlBlogPosts.slug, slug)).returning({ id: htmlBlogPosts.id })
-    if (deleted.length === 0) return c.json({ message: 'Post not found' }, 404)
-    return c.json({ message: 'Post deleted' })
-  } catch (error: any) {
-    return c.json({ message: error.message }, 500)
-  }
-})
+    const { slug } = req.params;
+    const deleted = await db
+      .delete(htmlBlogPosts)
+      .where(eq(htmlBlogPosts.slug, slug))
+      .returning({ id: htmlBlogPosts.id });
 
-export default app
+    if (deleted.length === 0) return res.status(404).json({ message: "Post not found" });
+    res.json({ message: "Post deleted" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+export default router;

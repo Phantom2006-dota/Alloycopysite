@@ -1,7 +1,7 @@
-import { v2 as cloudinary } from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary';
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.warn('Cloudinary credentials not configured. File uploads will not work.')
+  console.warn('Cloudinary credentials not configured. File uploads will not work.');
 }
 
 cloudinary.config({
@@ -9,57 +9,61 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
-})
+});
 
 export interface CloudinaryUploadResult {
-  public_id: string
-  secure_url: string
-  url: string
-  format: string
-  width?: number
-  height?: number
-  bytes: number
-  resource_type: string
-  created_at: string
+  public_id: string;
+  secure_url: string;
+  url: string;
+  format: string;
+  width?: number;
+  height?: number;
+  bytes: number;
+  resource_type: string;
+  created_at: string;
 }
 
-/**
- * Upload a buffer to Cloudinary using a base64 data URI.
- * This avoids Node.js streams so it works on Cloudflare Workers (nodejs_compat).
- */
 export async function uploadToCloudinary(
   buffer: Buffer,
   options: {
-    folder?: string
-    public_id?: string
-    resource_type?: 'image' | 'video' | 'raw' | 'auto'
-    transformation?: any
-    mimeType?: string
+    folder?: string;
+    public_id?: string;
+    resource_type?: 'image' | 'video' | 'raw' | 'auto';
+    transformation?: any;
   } = {}
 ): Promise<CloudinaryUploadResult> {
-  const mime = options.mimeType || 'application/octet-stream'
-  const dataUri = `data:${mime};base64,${buffer.toString('base64')}`
+  return new Promise((resolve, reject) => {
+    const uploadOptions = {
+      folder: options.folder || 'bauhaus-cms',
+      public_id: options.public_id,
+      resource_type: options.resource_type || 'auto',
+      transformation: options.transformation,
+    };
 
-  const result = await cloudinary.uploader.upload(dataUri, {
-    folder: options.folder || 'bauhaus-cms',
-    public_id: options.public_id,
-    resource_type: options.resource_type || 'auto',
-    transformation: options.transformation,
-  })
-
-  return result as CloudinaryUploadResult
+    cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+      if (error) {
+        reject(error);
+      } else if (result) {
+        resolve(result as CloudinaryUploadResult);
+      } else {
+        reject(new Error('Upload failed'));
+      }
+    }).end(buffer);
+  });
 }
 
 export async function uploadImageWithThumbnail(
   buffer: Buffer,
-  options: { folder?: string; public_id?: string; mimeType?: string } = {}
+  options: {
+    folder?: string;
+    public_id?: string;
+  } = {}
 ): Promise<{ original: CloudinaryUploadResult; thumbnail: string }> {
   const result = await uploadToCloudinary(buffer, {
     folder: options.folder || 'bauhaus-cms/images',
     public_id: options.public_id,
     resource_type: 'image',
-    mimeType: options.mimeType,
-  })
+  });
 
   const thumbnailUrl = cloudinary.url(result.public_id, {
     transformation: [
@@ -67,29 +71,26 @@ export async function uploadImageWithThumbnail(
       { quality: 'auto' },
       { format: 'auto' },
     ],
-  })
+  });
 
-  return { original: result, thumbnail: thumbnailUrl }
+  return {
+    original: result,
+    thumbnail: thumbnailUrl,
+  };
 }
 
-export async function deleteFromCloudinary(
-  publicId: string,
-  resourceType: 'image' | 'video' | 'raw' = 'image'
-): Promise<void> {
-  await cloudinary.uploader.destroy(publicId, { resource_type: resourceType })
+export async function deleteFromCloudinary(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<void> {
+  await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
 }
 
-export function getOptimizedUrl(
-  publicId: string,
-  options: { width?: number; height?: number; quality?: string; format?: string } = {}
-): string {
+export function getOptimizedUrl(publicId: string, options: { width?: number; height?: number; quality?: string; format?: string } = {}): string {
   return cloudinary.url(publicId, {
     transformation: [
       { width: options.width, height: options.height, crop: options.width || options.height ? 'fill' : undefined },
       { quality: options.quality || 'auto' },
       { format: options.format || 'auto' },
     ],
-  })
+  });
 }
 
-export default cloudinary
+export default cloudinary;

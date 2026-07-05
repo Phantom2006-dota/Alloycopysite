@@ -1,44 +1,51 @@
-import { createMiddleware } from 'hono/factory'
-import jwt from 'jsonwebtoken'
-import type { AppEnv } from '../types'
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET || 'bauhaus-cms-secret-key-change-in-production'
-  if (!process.env.JWT_SECRET) {
-    console.warn('WARNING: JWT_SECRET is not set. Set this environment variable before deploying to production.')
+const JWT_SECRET = process.env.JWT_SECRET || "bauhaus-cms-secret-key-change-in-production";
+if (!process.env.JWT_SECRET) {
+  console.warn("WARNING: JWT_SECRET is not set. Set this environment variable to a strong secret before deploying to production.");
+}
+
+export interface AuthRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+  };
+}
+
+export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Access token required" });
   }
-  return secret
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+}
+
+export function requireRole(...roles: string[]) {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
+
+    next();
+  };
 }
 
 export function generateToken(user: { id: number; username: string; email: string; role: string }) {
-  return jwt.sign(user, getJwtSecret(), { expiresIn: '7d' })
-}
-
-export const authenticateToken = createMiddleware<AppEnv>(async (c, next) => {
-  const authHeader = c.req.header('Authorization')
-  const token = authHeader?.split(' ')[1]
-
-  if (!token) return c.json({ message: 'Access token required' }, 401)
-
-  try {
-    const decoded = jwt.verify(token, getJwtSecret()) as any
-    c.set('user', {
-      id: decoded.id,
-      username: decoded.username,
-      email: decoded.email,
-      role: decoded.role,
-    })
-    await next()
-  } catch {
-    return c.json({ message: 'Invalid or expired token' }, 403)
-  }
-})
-
-export function requireRole(...roles: string[]) {
-  return createMiddleware<AppEnv>(async (c, next) => {
-    const user = c.get('user')
-    if (!user) return c.json({ message: 'Not authenticated' }, 401)
-    if (!roles.includes(user.role)) return c.json({ message: 'Insufficient permissions' }, 403)
-    await next()
-  })
+  return jwt.sign(user, JWT_SECRET, { expiresIn: "7d" });
 }
