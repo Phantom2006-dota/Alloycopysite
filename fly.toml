@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for alloycopysite-0pb4cg on 2026-05-10T09:38:20Z
+# fly.toml app configuration file generated for alloycopysite-h6k-bq on 2026-07-08T16:05:48Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'alloycopysite-0pb4cg'
+app = 'alloycopysite-h6k-bq'
 primary_region = 'ams'
 
 [build]
