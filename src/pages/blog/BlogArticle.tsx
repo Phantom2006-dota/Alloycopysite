@@ -16,6 +16,9 @@ function extractHtmlParts(raw: string): { styles: string; body: string } {
     .map((s) => s.outerHTML)
     .join("\n");
 
+  // Remove embedded nav/header/footer so the site's own Layout is used instead
+  doc.querySelectorAll("nav, header, footer, .site-nav, .site-header, .site-footer, #nav, #header, #footer").forEach((el) => el.remove());
+
   const body = doc.body?.innerHTML || raw;
   return { styles: styleBlocks, body };
 }
