@@ -23,6 +23,29 @@ router.get("/ping", (_req: Request, res: Response) => {
   res.json({ status: "ok", route: "html-blog", version: "2.0.0" });
 });
 
+router.get("/:slug", async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const rows = await db
+      .select({
+        id: htmlBlogPosts.id,
+        slug: htmlBlogPosts.slug,
+        title: htmlBlogPosts.title,
+        description: htmlBlogPosts.description,
+        category: htmlBlogPosts.category,
+        publishedAt: htmlBlogPosts.publishedAt,
+        htmlContent: htmlBlogPosts.htmlContent,
+      })
+      .from(htmlBlogPosts)
+      .where(eq(htmlBlogPosts.slug, slug))
+      .limit(1);
+    if (rows.length === 0) return res.status(404).json({ message: "Post not found" });
+    res.json(rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const posts = await db

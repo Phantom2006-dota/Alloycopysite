@@ -207,7 +207,7 @@ export default function BlogList() {
                   ))}
 
                   {filteredHtmlPosts.map((post: any) => (
-                    <a key={`html-${post.slug}`} href={`/blog/${post.slug}`} className="group">
+                    <Link key={`html-${post.slug}`} to={`/blog/${post.slug}`} className="group">
                       <Card className="h-full border-0 shadow-none bg-transparent">
                         <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted mb-4 flex items-center justify-center">
                           <FileText className="h-12 w-12 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-300" />
@@ -231,7 +231,7 @@ export default function BlogList() {
                           </div>
                         </CardContent>
                       </Card>
-                    </a>
+                    </Link>
                   ))}
                 </div>
 

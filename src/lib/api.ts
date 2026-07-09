@@ -667,6 +667,7 @@ export const api = {
 
   htmlBlog: {
     list: () => request<any[]>("/html-blog"),
+    getBySlug: (slug: string) => request<any>(`/html-blog/${slug}`),
     upload: (formData: FormData) =>
       apiRequest<any>("/html-blog", { method: "POST", body: formData }),
     remove: (slug: string) =>

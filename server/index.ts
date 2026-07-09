@@ -184,24 +184,6 @@ app.use("/api/product-categories", productCategoriesRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/html-blog", htmlBlogRoutes);
 
-// Serve HTML blog pages directly at /blog/:slug — fetched from database
-app.get("/blog/:slug", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { db } = await import("./db");
-    const { htmlBlogPosts } = await import("../shared/schema");
-    const { eq } = await import("drizzle-orm");
-    const slug = req.params.slug;
-    const rows = await db
-      .select({ htmlContent: htmlBlogPosts.htmlContent })
-      .from(htmlBlogPosts)
-      .where(eq(htmlBlogPosts.slug, slug))
-      .limit(1);
-    if (rows.length > 0) {
-      return res.type("html").send(rows[0].htmlContent);
-    }
-  } catch (_) {}
-  next();
-});
 
 if (process.env.NODE_ENV === "development") {
   // Route to check environment variables (development only)

@@ -8,29 +8,59 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Clock, Calendar, Eye, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
 import { format } from "date-fns";
 
+function extractHtmlParts(raw: string): { styles: string; body: string } {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(raw, "text/html");
+
+  const styleBlocks = Array.from(doc.querySelectorAll("style"))
+    .map((s) => s.outerHTML)
+    .join("\n");
+
+  const body = doc.body?.innerHTML || raw;
+  return { styles: styleBlocks, body };
+}
+
 export default function BlogArticle() {
   const { slug } = useParams();
 
-  const { data: article, isLoading, error } = useQuery({
+  const {
+    data: article,
+    isLoading: articleLoading,
+    error: articleError,
+  } = useQuery({
     queryKey: ["article", slug],
     queryFn: () => api.articles.getBySlug(slug!),
     enabled: !!slug,
+    retry: false,
+  });
+
+  const isArticleNotFound = !!articleError;
+
+  const {
+    data: htmlPost,
+    isLoading: htmlLoading,
+    error: htmlError,
+  } = useQuery({
+    queryKey: ["html-blog-post", slug],
+    queryFn: () => api.htmlBlog.getBySlug(slug!),
+    enabled: !!slug && isArticleNotFound,
+    retry: false,
   });
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
   const handleShare = (platform: string) => {
-    const title = encodeURIComponent(article?.title || "");
+    const title = encodeURIComponent(article?.title || htmlPost?.title || "");
     const url = encodeURIComponent(shareUrl);
-    
     const urls: Record<string, string> = {
       twitter: `https://twitter.com/intent/tweet?text=${title}&url=${url}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}`,
     };
-
     window.open(urls[platform], "_blank", "width=600,height=400");
   };
+
+  const isLoading = articleLoading || (isArticleNotFound && htmlLoading);
 
   if (isLoading) {
     return (
@@ -42,7 +72,7 @@ export default function BlogArticle() {
     );
   }
 
-  if (error || !article) {
+  if (isArticleNotFound && (htmlError || !htmlPost)) {
     return (
       <Layout>
         <div className="min-h-screen flex flex-col items-center justify-center px-4">
@@ -60,6 +90,50 @@ export default function BlogArticle() {
       </Layout>
     );
   }
+
+  if (htmlPost) {
+    const { styles, body } = extractHtmlParts(htmlPost.htmlContent || "");
+    return (
+      <Layout>
+        <div className="min-h-screen">
+          <div className="max-w-4xl mx-auto px-4 py-16">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Blog
+            </Link>
+
+            {styles && (
+              <div dangerouslySetInnerHTML={{ __html: styles }} />
+            )}
+
+            <div dangerouslySetInnerHTML={{ __html: body }} />
+
+            <Separator className="my-12" />
+
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <span className="text-sm text-muted-foreground">Share this page:</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon" onClick={() => handleShare("twitter")}>
+                  <Twitter className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => handleShare("facebook")}>
+                  <Facebook className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => handleShare("linkedin")}>
+                  <Linkedin className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!article) return null;
 
   return (
     <Layout>
@@ -157,25 +231,13 @@ export default function BlogArticle() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <span className="text-sm text-muted-foreground">Share this article:</span>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleShare("twitter")}
-              >
+              <Button variant="outline" size="icon" onClick={() => handleShare("twitter")}>
                 <Twitter className="h-4 w-4" />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleShare("facebook")}
-              >
+              <Button variant="outline" size="icon" onClick={() => handleShare("facebook")}>
                 <Facebook className="h-4 w-4" />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleShare("linkedin")}
-              >
+              <Button variant="outline" size="icon" onClick={() => handleShare("linkedin")}>
                 <Linkedin className="h-4 w-4" />
               </Button>
             </div>
@@ -184,7 +246,6 @@ export default function BlogArticle() {
           {article.authorBio && (
             <>
               <Separator className="my-12" />
-
               <div className="bg-muted/50 rounded-lg p-6 md:p-8">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
@@ -199,9 +260,7 @@ export default function BlogArticle() {
                     </h3>
                     <p className="text-muted-foreground mb-4">{article.authorBio}</p>
                     <Button variant="outline" size="sm" asChild>
-                      <Link to={`/blog/author/${article.authorId}`}>
-                        View all posts
-                      </Link>
+                      <Link to={`/blog/author/${article.authorId}`}>View all posts</Link>
                     </Button>
                   </div>
                 </div>
@@ -212,7 +271,6 @@ export default function BlogArticle() {
           {article.relatedArticles && article.relatedArticles.length > 0 && (
             <>
               <Separator className="my-12" />
-
               <section>
                 <h2 className="text-2xl font-serif font-medium mb-8">Related Articles</h2>
                 <div className="grid md:grid-cols-3 gap-6">
