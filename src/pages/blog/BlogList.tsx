@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Clock, User } from "lucide-react";
+import { Search, Clock, User, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 export default function BlogList() {
@@ -25,7 +25,7 @@ export default function BlogList() {
     queryFn: () => api.articles.featured(),
   });
 
-  const { data: articlesData, isLoading } = useQuery({
+  const { data: articlesData, isLoading: articlesLoading } = useQuery({
     queryKey: ["articles", page, category, searchParams.get("search")],
     queryFn: () =>
       api.articles.list({
@@ -35,6 +35,27 @@ export default function BlogList() {
         search: searchParams.get("search") || undefined,
       }),
   });
+
+  const { data: htmlPosts = [], isLoading: htmlLoading } = useQuery({
+    queryKey: ["html-blog-posts"],
+    queryFn: () => api.htmlBlog.list(),
+  });
+
+  const searchTerm = (searchParams.get("search") || "").toLowerCase();
+
+  const filteredHtmlPosts = htmlPosts.filter((post: any) => {
+    const matchesCategory = !category || post.category?.toLowerCase() === category.toLowerCase();
+    const matchesSearch =
+      !searchTerm ||
+      post.title?.toLowerCase().includes(searchTerm) ||
+      post.description?.toLowerCase().includes(searchTerm);
+    return matchesCategory && matchesSearch;
+  });
+
+  const isLoading = articlesLoading || htmlLoading;
+  const hasArticles = articlesData?.articles && articlesData.articles.length > 0;
+  const hasHtmlPosts = filteredHtmlPosts.length > 0;
+  const hasAny = hasArticles || hasHtmlPosts;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,16 +159,15 @@ export default function BlogList() {
               </div>
             </div>
 
-            {/* Regular Articles */}
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
-            ) : articlesData?.articles && articlesData.articles.length > 0 ? (
+            ) : hasAny ? (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {articlesData.articles.map((article: any) => (
-                    <Link key={article.id} to={`/blog/${article.slug}`} className="group">
+                  {articlesData?.articles?.map((article: any) => (
+                    <Link key={`article-${article.id}`} to={`/blog/${article.slug}`} className="group">
                       <Card className="h-full border-0 shadow-none bg-transparent">
                         <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted mb-4">
                           {article.featuredImage ? (
@@ -185,9 +205,37 @@ export default function BlogList() {
                       </Card>
                     </Link>
                   ))}
+
+                  {filteredHtmlPosts.map((post: any) => (
+                    <a key={`html-${post.slug}`} href={`/blog/${post.slug}`} className="group">
+                      <Card className="h-full border-0 shadow-none bg-transparent">
+                        <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted mb-4 flex items-center justify-center">
+                          <FileText className="h-12 w-12 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                        <CardContent className="p-0">
+                          {post.category && (
+                            <span className="section-title text-accent mb-2 block text-xs">
+                              {post.category}
+                            </span>
+                          )}
+                          <h3 className="font-serif font-medium text-lg mb-2 group-hover:text-accent transition-colors line-clamp-2">
+                            {post.title}
+                          </h3>
+                          {post.description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                              {post.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span>{format(new Date(post.publishedAt), "MMM d, yyyy")}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </a>
+                  ))}
                 </div>
 
-                {articlesData.pagination.pages > 1 && (
+                {articlesData?.pagination && articlesData.pagination.pages > 1 && (
                   <div className="flex items-center justify-center gap-4 mt-12">
                     <Button
                       variant="outline"
