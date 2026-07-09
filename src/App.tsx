@@ -26,9 +26,6 @@ import Catalogue from "./pages/Catalogue";
 
 import BlogList from "./pages/blog/BlogList";
 import BlogArticle from "./pages/blog/BlogArticle";
-import ThingsToDoLagos from "./pages/guides/ThingsToDoLagos";
-import NigerianBooksToRead from "./pages/guides/NigerianBooksToRead";
-
 import PaymentSuccess from "./pages/payment/PaymentSuccess";
 import PaymentFailed from "./pages/payment/PaymentFailed";
 import PaymentCancelled from "./pages/payment/PaymentCancelled";
@@ -77,9 +74,6 @@ const App = () => (
               
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
-              <Route path="/things-to-do-in-lagos-nigeria" element={<ThingsToDoLagos />} />
-              <Route path="/nigerian-books-to-read" element={<NigerianBooksToRead />} />
-              
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failed" element={<PaymentFailed />} />
               <Route path="/payment/cancelled" element={<PaymentCancelled />} />

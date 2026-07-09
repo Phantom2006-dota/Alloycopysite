@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Clock, User } from "lucide-react";
 import { format } from "date-fns";
-import FeaturedGuides from "@/components/FeaturedGuides";
 
 export default function BlogList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,8 +50,6 @@ export default function BlogList() {
     searchParams.set("page", "1");
     setSearchParams(searchParams);
   };
-
-  const showGuides = !category && !searchParams.get("search") && page === 1;
 
   return (
     <Layout>
@@ -140,9 +137,6 @@ export default function BlogList() {
                 ))}
               </div>
             </div>
-
-            {/* Guides & Features — static frontend cards */}
-            {showGuides && <FeaturedGuides />}
 
             {/* Regular Articles */}
             {isLoading ? (
