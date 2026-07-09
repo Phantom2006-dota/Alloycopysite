@@ -264,6 +264,7 @@ export const htmlBlogPosts = pgTable("html_blog_posts", {
   title: varchar("title", { length: 500 }).notNull(),
   description: text("description"),
   category: varchar("category", { length: 100 }).default("General"),
+  thumbnailUrl: varchar("thumbnail_url", { length: 1000 }),
   htmlContent: text("html_content").notNull(),
   publishedAt: timestamp("published_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

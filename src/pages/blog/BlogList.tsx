@@ -210,7 +210,15 @@ export default function BlogList() {
                     <Link key={`html-${post.slug}`} to={`/blog/${post.slug}`} className="group">
                       <Card className="h-full border-0 shadow-none bg-transparent">
                         <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted mb-4 flex items-center justify-center">
-                          <FileText className="h-12 w-12 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-300" />
+                          {post.thumbnailUrl ? (
+                            <img
+                              src={post.thumbnailUrl}
+                              alt={post.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <FileText className="h-12 w-12 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-300" />
+                          )}
                         </div>
                         <CardContent className="p-0">
                           {post.category && (

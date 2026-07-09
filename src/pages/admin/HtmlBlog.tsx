@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, Trash2, ExternalLink, FileText, Plus, X } from "lucide-react";
+import { Upload, Trash2, ExternalLink, FileText, Plus, X, Image } from "lucide-react";
 import { format } from "date-fns";
 import { api } from "@/lib/api";
 
@@ -16,13 +16,14 @@ interface HtmlPost {
   title: string;
   description: string;
   category: string;
+  thumbnailUrl?: string;
   publishedAt: string;
-  filename: string;
 }
 
 export default function AdminHtmlBlog() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
@@ -30,6 +31,8 @@ export default function AdminHtmlBlog() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   const { data: posts = [], isLoading } = useQuery<HtmlPost[]>({
     queryKey: ["html-blog-posts"],
@@ -61,8 +64,11 @@ export default function AdminHtmlBlog() {
     setDescription("");
     setCategory("General");
     setSelectedFile(null);
+    setSelectedThumbnail(null);
+    setThumbnailPreview(null);
     setShowForm(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
   };
 
   const handleTitleChange = (val: string) => {
@@ -73,6 +79,22 @@ export default function AdminHtmlBlog() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setSelectedFile(file);
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedThumbnail(file);
+      const reader = new FileReader();
+      reader.onload = (ev) => setThumbnailPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeThumbnail = () => {
+    setSelectedThumbnail(null);
+    setThumbnailPreview(null);
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,6 +108,7 @@ export default function AdminHtmlBlog() {
     formData.append("slug", slug);
     formData.append("description", description);
     formData.append("category", category);
+    if (selectedThumbnail) formData.append("thumbnail", selectedThumbnail);
     uploadMutation.mutate(formData);
   };
 
@@ -117,34 +140,76 @@ export default function AdminHtmlBlog() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label>HTML File *</Label>
-                  <div
-                    className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {selectedFile ? (
-                      <div className="flex items-center justify-center gap-2 text-primary">
-                        <FileText className="h-5 w-5" />
-                        <span className="font-medium">{selectedFile.name}</span>
-                        <span className="text-muted-foreground text-sm">
-                          ({(selectedFile.size / 1024).toFixed(0)} KB)
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground">
-                        <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">Click to choose an HTML file</p>
-                        <p className="text-xs mt-1 opacity-70">Max 10MB</p>
-                      </div>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".html,text/html"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label>HTML File *</Label>
+                    <div
+                      className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors h-[140px] flex items-center justify-center"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {selectedFile ? (
+                        <div className="flex items-center justify-center gap-2 text-primary">
+                          <FileText className="h-5 w-5 shrink-0" />
+                          <div className="text-left">
+                            <p className="font-medium text-sm truncate max-w-[160px]">{selectedFile.name}</p>
+                            <p className="text-muted-foreground text-xs">
+                              {(selectedFile.size / 1024).toFixed(0)} KB
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-muted-foreground">
+                          <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Click to choose an HTML file</p>
+                          <p className="text-xs mt-1 opacity-70">Max 10MB</p>
+                        </div>
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".html,text/html"
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Thumbnail Image <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <div
+                      className="border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary/50 transition-colors h-[140px] flex items-center justify-center overflow-hidden relative"
+                      onClick={() => !thumbnailPreview && thumbnailInputRef.current?.click()}
+                    >
+                      {thumbnailPreview ? (
+                        <>
+                          <img
+                            src={thumbnailPreview}
+                            alt="Thumbnail preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); removeThumbnail(); }}
+                            className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="text-muted-foreground">
+                          <Image className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Click to add a thumbnail</p>
+                          <p className="text-xs mt-1 opacity-70">JPG, PNG, WebP</p>
+                        </div>
+                      )}
+                      <input
+                        ref={thumbnailInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleThumbnailChange}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -223,7 +288,18 @@ export default function AdminHtmlBlog() {
           <div className="space-y-3">
             {posts.map((post) => (
               <Card key={post.slug}>
-                <CardContent className="p-5 flex items-center justify-between gap-4">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                    {post.thumbnailUrl ? (
+                      <img
+                        src={post.thumbnailUrl}
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FileText className="h-6 w-6 text-muted-foreground/40" />
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h3 className="font-medium truncate">{post.title}</h3>
