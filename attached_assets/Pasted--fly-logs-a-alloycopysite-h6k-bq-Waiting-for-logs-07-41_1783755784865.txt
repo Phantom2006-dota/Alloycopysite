@@ -1,0 +1,220 @@
+$ fly logs -a alloycopysite-h6k-bq 
+Waiting for logs...
+07:41:33
+    dataType: undefined,
+07:41:33
+    constraint: undefined,
+07:41:33
+    file: 'parse_relation.c',
+07:41:33
+    line: '1449',
+07:41:33
+    routine: 'parserOpenTable'
+07:41:33
+  }
+07:41:33
+}
+07:41:33
+[2026-07-11T07:41:33.699Z] GET /api/press/admin/all - 500 (593ms)
+07:41:50
+[2026-07-11T07:41:50.417Z] POST /api/press - 500 (3498ms)
+07:41:50
+Create press item error: DrizzleQueryError: Failed query: insert into "press_items" ("id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, default, default) returning "id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at"
+Region
+ams
+Instance
+e822e69a622d98
+Provider
+app
+Level
+info
+Full Message
+Create press item error: DrizzleQueryError: Failed query: insert into "press_items" ("id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, default, default) returning "id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at"
+Copy as JSON
+07:41:50
+params: the press,the-press,,,,https://res.cloudinary.com/di2u0n1qj/image/upload/v1783755709/bauhaus-cms/press/my1nytfzfh0xece34wtc.png,,,false,published
+07:41:50
+    at NodePgPreparedQuery.queryWithCache (/app/node_modules/src/pg-core/session.ts:73:11)
+07:41:50
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+07:41:50
+    at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:154:19)
+07:41:50
+    at async <anonymous> (/app/server/routes/press.ts:159:25) {
+07:41:50
+  query: 'insert into "press_items" ("id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, default, default) returning "id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at"',
+07:41:50
+  params: [
+07:41:50
+    'the press',
+07:41:50
+    'the-press',
+07:41:50
+    null,
+07:41:50
+    null,
+07:41:50
+    null,
+07:41:50
+    'https://res.cloudinary.com/di2u0n1qj/image/upload/v1783755709/bauhaus-cms/press/my1nytfzfh0xece34wtc.png',
+07:41:50
+    null,
+07:41:50
+    null,
+07:41:50
+    false,
+07:41:50
+    'published'
+07:41:50
+  ],
+07:41:50
+  cause: error: relation "press_items" does not exist
+07:41:50
+      at /app/node_modules/pg-pool/index.js:45:11
+07:41:50
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+07:41:50
+      at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:161:13)
+07:41:50
+      at async NodePgPreparedQuery.queryWithCache (/app/node_modules/src/pg-core/session.ts:71:12)
+07:41:50
+      at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:154:19)
+07:41:50
+      at async <anonymous> (/app/server/routes/press.ts:159:25) {
+07:41:50
+    length: 110,
+07:41:50
+    severity: 'ERROR',
+07:41:50
+    code: '42P01',
+07:41:50
+    detail: undefined,
+07:41:50
+    hint: undefined,
+07:41:50
+    position: '13',
+07:41:50
+    internalPosition: undefined,
+07:41:50
+    internalQuery: undefined,
+07:41:50
+    where: undefined,
+07:41:50
+    schema: undefined,
+07:41:50
+    table: undefined,
+07:41:50
+    column: undefined,
+07:41:50
+    dataType: undefined,
+07:41:50
+    constraint: undefined,
+07:41:50
+    file: 'parse_relation.c',
+07:41:50
+    line: '1449',
+07:41:50
+    routine: 'parserOpenTable'
+07:41:50
+  }
+07:41:50
+}
+07:41:58
+Create press item error: DrizzleQueryError: Failed query: insert into "press_items" ("id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, default, default) returning "id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at"
+07:41:58
+params: the press,the-press,,,,https://res.cloudinary.com/di2u0n1qj/image/upload/v1783755717/bauhaus-cms/press/io7kdukkbko8j6busib1.png,,,true,published
+07:41:58
+    at NodePgPreparedQuery.queryWithCache (/app/node_modules/src/pg-core/session.ts:73:11)
+07:41:58
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+07:41:58
+    at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:154:19)
+07:41:58
+    at async <anonymous> (/app/server/routes/press.ts:159:25) {
+07:41:58
+  query: 'insert into "press_items" ("id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, default, default) returning "id", "title", "slug", "description", "source", "published_date", "newspaper_image", "pdf_url", "external_link", "is_featured", "status", "created_at", "updated_at"',
+07:41:58
+  params: [
+07:41:58
+    'the press',
+07:41:58
+    'the-press',
+07:41:58
+    null,
+07:41:58
+    null,
+07:41:58
+    null,
+07:41:58
+    'https://res.cloudinary.com/di2u0n1qj/image/upload/v1783755717/bauhaus-cms/press/io7kdukkbko8j6busib1.png',
+07:41:58
+    null,
+07:41:58
+    null,
+07:41:58
+    true,
+07:41:58
+    'published'
+07:41:58
+  ],
+07:41:58
+  cause: error: relation "press_items" does not exist
+07:41:58
+      at /app/node_modules/pg-pool/index.js:45:11
+07:41:58
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+07:41:58
+      at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:161:13)
+07:41:58
+      at async NodePgPreparedQuery.queryWithCache (/app/node_modules/src/pg-core/session.ts:71:12)
+07:41:58
+      at async <anonymous> (/app/node_modules/src/node-postgres/session.ts:154:19)
+07:41:58
+      at async <anonymous> (/app/server/routes/press.ts:159:25) {
+07:41:58
+    length: 110,
+07:41:58
+    severity: 'ERROR',
+07:41:58
+    code: '42P01',
+07:41:58
+    detail: undefined,
+07:41:58
+    hint: undefined,
+07:41:58
+    position: '13',
+07:41:58
+    internalPosition: undefined,
+07:41:58
+    internalQuery: undefined,
+07:41:58
+    where: undefined,
+07:41:58
+    schema: undefined,
+07:41:58
+    table: undefined,
+07:41:58
+    column: undefined,
+07:41:58
+    dataType: undefined,
+07:41:58
+    constraint: undefined,
+07:41:58
+    file: 'parse_relation.c',
+07:41:58
+    line: '1449',
+07:41:58
+    routine: 'parserOpenTable'
+07:41:58
+  }
+07:41:58
+}
+07:41:58
+[2026-07-11T07:41:58.486Z] POST /api/press - 500 (3469ms)
+Region
+ams
+Instance
+e822e69a622d98
+Provider
+app
+Level
