@@ -78,19 +78,26 @@ export default function PressDetail() {
             )}
           </header>
 
-          <div className="aspect-video rounded-lg overflow-hidden bg-muted mb-10">
+          <div className="rounded-lg bg-muted mb-2 border border-border">
             {item.newspaperImage ? (
-              <img
-                src={item.newspaperImage}
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
+              <div className="max-h-[80vh] overflow-auto">
+                <img
+                  src={item.newspaperImage}
+                  alt={item.title}
+                  className="w-full h-auto block"
+                />
+              </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="aspect-video w-full flex items-center justify-center">
                 <Newspaper className="h-16 w-16 text-muted-foreground/40" />
               </div>
             )}
           </div>
+          {item.newspaperImage && (
+            <p className="text-xs text-muted-foreground mb-10">
+              Scroll within the image to see it at full size.
+            </p>
+          )}
 
           {item.description && (
             <p className="text-xl leading-relaxed font-serif text-foreground/90 mb-8">

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { format } from "date-fns";
-import { Book, Film, MapPin, Calendar } from "lucide-react";
+import { Book, Film, MapPin, Calendar, Newspaper, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface MediaItem {
@@ -53,6 +53,17 @@ interface Event {
   isVirtual: boolean;
   featuredImage: string | null;
   status: string;
+}
+
+interface PressItem {
+  id: number;
+  title: string;
+  slug: string;
+  description: string | null;
+  source: string | null;
+  publishedDate: string | null;
+  newspaperImage: string | null;
+  isFeatured: boolean;
 }
 
 const Index = () => {
@@ -157,6 +168,23 @@ const Index = () => {
     retry: 1,
   });
 
+  const {
+    data: pressData,
+    isLoading: pressLoading,
+  } = useQuery({
+    queryKey: ["latest-press"],
+    queryFn: async () => {
+      try {
+        const data = await api.press.list({ limit: 3, status: "published" });
+        return data.pressItems || [];
+      } catch (error) {
+        console.error("Error fetching press items:", error);
+        return [];
+      }
+    },
+    retry: 1,
+  });
+
   useEffect(() => {
     if (mediaError || articlesError || productsError || eventsError) {
       console.error("Query errors detected:", {
@@ -174,6 +202,7 @@ const Index = () => {
   const articles = articlesData || [];
   const products = productsData || [];
   const events = eventsData || [];
+  const pressItems: PressItem[] = pressData || [];
 
   // Get default images for each type
   const getDefaultImage = (type: string) => {
@@ -267,7 +296,7 @@ const Index = () => {
   }
 
   const isLoading =
-    mediaLoading || articlesLoading || productsLoading || eventsLoading;
+    mediaLoading || articlesLoading || productsLoading || eventsLoading || pressLoading;
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -454,6 +483,65 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {pressItems.length > 0 && (
+        <section className="py-16 px-6">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-xl font-serif flex items-center gap-2">
+                <Newspaper className="h-5 w-5" />
+                In the Press
+              </h2>
+              <Link
+                to="/press"
+                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              >
+                View all
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {pressItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/press/${item.slug}`}
+                  className="group block"
+                >
+                  <Card className="overflow-hidden card-hover border-border h-full">
+                    <div className="aspect-video relative bg-muted">
+                      {item.newspaperImage ? (
+                        <img
+                          src={item.newspaperImage}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Newspaper className="h-10 w-10 text-muted-foreground/50" />
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-serif font-medium text-sm group-hover:text-accent transition-colors mb-2">
+                        {item.title}
+                      </h3>
+                      {(item.source || item.publishedDate) && (
+                        <p className="text-xs text-muted-foreground">
+                          {item.source}
+                          {item.source && item.publishedDate && " • "}
+                          {item.publishedDate &&
+                            format(new Date(item.publishedDate), "MMM d, yyyy")}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-16 px-6 bg-secondary/50">
         <div className="mx-auto max-w-4xl text-center animate-fade-in">
