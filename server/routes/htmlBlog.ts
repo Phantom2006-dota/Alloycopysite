@@ -2,10 +2,14 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import { db } from "../db";
 import { htmlBlogPosts } from "../../shared/schema";
 import { eq } from "drizzle-orm";
 import { authenticateToken, AuthRequest } from "../middleware/auth";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = Router();
 
