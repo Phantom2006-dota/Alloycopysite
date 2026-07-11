@@ -8,6 +8,14 @@ BAUHAUS is a Nigerian cultural company operating across multiple verticals: Book
 
 Preferred communication style: Simple, everyday language.
 
+## Running on Replit
+
+- **Workflow**: "Start application" runs `npm run dev` (integrated mode — Express serves the API and Vite dev-serves the frontend on port 5000).
+- **Database**: Uses Replit's built-in PostgreSQL (`DATABASE_URL` is set automatically as an env var). Schema is pushed with `npm run db:push` (drizzle-kit); it does not use the `migrations/` SQL files at runtime.
+- **Seed data**: `npm run db:seed` creates a `super_admin` user (`admin01` / `admin123`), default categories, and sample products. Safe to re-run — it skips creation if data already exists.
+- **Optional integrations not yet configured**: Cloudinary (file/media uploads — set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) and Stripe (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`). The site and admin panel work without them; uploads and payments will fail until they're set.
+- Repo also ships config for other hosts (Docker, Fly.io, Netlify, Vercel, cPanel tarballs) — these are unused on Replit and can be ignored unless you want to deploy elsewhere.
+
 ## System Architecture...
 
 ### Frontend Architecture
@@ -149,7 +157,7 @@ Media uploads are stored in Cloudinary instead of local storage:
 
 ### Admin Panel
 Located at `/admin`:
-- **Login**: `/admin/login` (credentials: admin/admin123)
+- **Login**: `/admin/login` (seeded credentials: admin01/admin123 — see "Running on Replit" below)
 - **Dashboard**: `/admin` - Overview with stats and quick actions
 - **Articles**: `/admin/articles` - Article management with CRUD
 - **Article Editor**: `/admin/articles/:id` - Rich text editing with SEO settings
