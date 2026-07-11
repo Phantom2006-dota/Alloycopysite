@@ -263,6 +263,7 @@ export const pressItems = pgTable("press_items", {
   title: varchar("title", { length: 500 }).notNull(),
   slug: varchar("slug", { length: 500 }).unique().notNull(),
   description: text("description"),
+  content: text("content"),
   source: varchar("source", { length: 255 }),
   publishedDate: timestamp("published_date"),
   newspaperImage: text("newspaper_image"),

@@ -30,6 +30,7 @@ interface PressItem {
   title: string;
   slug: string;
   description: string | null;
+  content: string | null;
   source: string | null;
   publishedDate: string | null;
   newspaperImage: string | null;
@@ -50,6 +51,7 @@ export default function Press() {
   const initialFormData = {
     title: "",
     description: "",
+    content: "",
     source: "",
     publishedDate: "",
     newspaperImage: "",
@@ -137,6 +139,7 @@ export default function Press() {
     setFormData({
       title: item.title,
       description: item.description || "",
+      content: item.content || "",
       source: item.source || "",
       publishedDate: item.publishedDate
         ? new Date(item.publishedDate).toISOString().slice(0, 10)
@@ -281,14 +284,28 @@ export default function Press() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Short Summary</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                rows={3}
+                rows={2}
+                placeholder="A one or two line teaser shown on the Press overview page"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Story</Label>
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
+                rows={10}
+                placeholder="Write the full story that appears on the press item's own page. Leave blank if you only want to link out to the PDF or external article."
               />
             </div>
 

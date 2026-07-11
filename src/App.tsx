@@ -20,6 +20,7 @@ import Foundation from "./pages/Foundation";
 import Training from "./pages/Training";
 import Events from "./pages/Events";
 import Press from "./pages/Press";
+import PressDetail from "./pages/PressDetail";
 import NotFound from "./pages/NotFound";
 import Shop from "./pages/Shop";
 import ShopCategory from "./pages/ShopCategory";
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/training" element={<Training />} />
               <Route path="/events" element={<Events />} />
               <Route path="/press" element={<Press />} />
+              <Route path="/press/:slug" element={<PressDetail />} />
               
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:category" element={<ShopCategory />} />

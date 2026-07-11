@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Newspaper, FileText, ExternalLink, Calendar } from "lucide-react";
+import { Newspaper, FileText, ExternalLink, Calendar, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 import { format } from "date-fns";
 
@@ -10,6 +11,7 @@ interface PressItem {
   title: string;
   slug: string;
   description: string | null;
+  content: string | null;
   source: string | null;
   publishedDate: string | null;
   newspaperImage: string | null;
@@ -69,26 +71,32 @@ const Press = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {pressItems.map((item) => (
                 <Card key={item.id} className="overflow-hidden group card-hover border-border">
-                  <div className="aspect-video relative bg-muted">
-                    {item.newspaperImage ? (
-                      <img
-                        src={item.newspaperImage}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Newspaper className="h-12 w-12 text-muted-foreground/50" />
-                      </div>
-                    )}
-                    {item.isFeatured && (
-                      <span className="absolute top-2 left-2 bg-foreground text-background px-2 py-1 text-xs rounded">
-                        Featured
-                      </span>
-                    )}
-                  </div>
+                  <Link to={`/press/${item.slug}`} className="block">
+                    <div className="aspect-video relative bg-muted">
+                      {item.newspaperImage ? (
+                        <img
+                          src={item.newspaperImage}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Newspaper className="h-12 w-12 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      {item.isFeatured && (
+                        <span className="absolute top-2 left-2 bg-foreground text-background px-2 py-1 text-xs rounded">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                  </Link>
                   <CardContent className="p-4">
-                    <h3 className="font-serif font-medium">{item.title}</h3>
+                    <Link to={`/press/${item.slug}`}>
+                      <h3 className="font-serif font-medium group-hover:text-accent transition-colors">
+                        {item.title}
+                      </h3>
+                    </Link>
 
                     <div className="space-y-2 mt-3">
                       {(item.source || item.publishedDate) && (
@@ -110,13 +118,23 @@ const Press = () => {
                       </p>
                     )}
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-wrap items-center gap-2 mt-4">
+                      {item.content && (
+                        <Link
+                          to={`/press/${item.slug}`}
+                          className="btn-accent text-xs px-3 py-1 flex items-center gap-1"
+                        >
+                          Read Story
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      )}
                       {item.pdfUrl && (
                         <a
                           href={item.pdfUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-accent text-xs px-3 py-1 flex items-center gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs px-3 py-1 border border-border rounded hover:bg-muted transition-colors flex items-center gap-1"
                         >
                           <FileText className="h-3 w-3" />
                           View PDF
@@ -127,6 +145,7 @@ const Press = () => {
                           href={item.externalLink}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="text-xs px-3 py-1 bg-accent-blue text-white rounded hover:opacity-90 transition-colors flex items-center gap-1"
                         >
                           <ExternalLink className="h-3 w-3" />

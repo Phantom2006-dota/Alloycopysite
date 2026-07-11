@@ -128,7 +128,7 @@ router.post(
   ]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { title, description, source, publishedDate, externalLink, isFeatured, status } = req.body;
+      const { title, description, content, source, publishedDate, externalLink, isFeatured, status } = req.body;
 
       if (!title) {
         return res.status(400).json({ message: "Title is required" });
@@ -162,6 +162,7 @@ router.post(
           title,
           slug,
           description: description || null,
+          content: content || null,
           source: source || null,
           publishedDate: publishedDate ? new Date(publishedDate) : null,
           newspaperImage: newspaperImageUrl,
@@ -196,7 +197,7 @@ router.put(
     try {
       const { id } = req.params;
       const itemId = parseInt(id);
-      const { title, description, source, publishedDate, externalLink, isFeatured, status } = req.body;
+      const { title, description, content, source, publishedDate, externalLink, isFeatured, status } = req.body;
 
       const [existingItem] = await db.select().from(pressItems).where(eq(pressItems.id, itemId));
       if (!existingItem) {
@@ -229,6 +230,7 @@ router.put(
         updates.slug = generateSlug(title);
       }
       if (description !== undefined) updates.description = description;
+      if (content !== undefined) updates.content = content;
       if (source !== undefined) updates.source = source;
       if (publishedDate !== undefined) updates.publishedDate = publishedDate ? new Date(publishedDate) : null;
       if (newspaperImageUrl !== undefined) updates.newspaperImage = newspaperImageUrl;
