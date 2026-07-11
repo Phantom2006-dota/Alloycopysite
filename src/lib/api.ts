@@ -665,6 +665,50 @@ export const api = {
       }>("/payments/charge/bank-transfer", { method: "POST", body: data }),
   },
 
+  press: {
+    list: (params?: { page?: number; limit?: number; status?: string; featured?: boolean }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.set("page", params.page.toString());
+      if (params?.limit) searchParams.set("limit", params.limit.toString());
+      if (params?.status) searchParams.set("status", params.status);
+      if (params?.featured) searchParams.set("featured", "true");
+      return apiRequest<{ pressItems: any[]; pagination: any }>(
+        `/press?${searchParams}`,
+      );
+    },
+    get: (slug: string) => apiRequest<any>(`/press/${slug}`),
+
+    create: (data: any, files?: { newspaperImage?: File; pdf?: File }) => {
+      let body: any = data;
+
+      if (files?.newspaperImage || files?.pdf) {
+        const formData = createFormData(data);
+        if (files.newspaperImage) formData.append("newspaperImage", files.newspaperImage);
+        if (files.pdf) formData.append("pdf", files.pdf);
+        body = formData;
+      }
+
+      return apiRequest<any>("/press", { method: "POST", body });
+    },
+
+    update: (id: number, data: any, files?: { newspaperImage?: File; pdf?: File }) => {
+      let body: any = data;
+
+      if (files?.newspaperImage || files?.pdf) {
+        const formData = createFormData(data);
+        if (files.newspaperImage) formData.append("newspaperImage", files.newspaperImage);
+        if (files.pdf) formData.append("pdf", files.pdf);
+        body = formData;
+      }
+
+      return apiRequest<any>(`/press/${id}`, { method: "PUT", body });
+    },
+
+    delete: (id: number) =>
+      apiRequest<{ message: string }>(`/press/${id}`, { method: "DELETE" }),
+    adminList: () => apiRequest<any[]>("/press/admin/all"),
+  },
+
   htmlBlog: {
     list: () => request<any[]>("/html-blog"),
     getBySlug: (slug: string) => request<any>(`/html-blog/${slug}`),

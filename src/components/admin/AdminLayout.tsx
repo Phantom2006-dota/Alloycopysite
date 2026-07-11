@@ -22,6 +22,7 @@ import {
   ShoppingBag,
   Package,
   Globe,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ const menuItems = [
   { icon: FolderOpen, label: "Media Library", path: "/admin/uploads" },
   { icon: Users, label: "Team", path: "/admin/team" },
   { icon: Calendar, label: "Events", path: "/admin/events" },
+  { icon: Newspaper, label: "Press", path: "/admin/press" },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

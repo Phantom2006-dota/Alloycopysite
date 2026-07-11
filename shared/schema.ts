@@ -258,6 +258,25 @@ export type InsertProductCategory = typeof productCategories.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = typeof products.$inferInsert;
 
+export const pressItems = pgTable("press_items", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 500 }).unique().notNull(),
+  description: text("description"),
+  source: varchar("source", { length: 255 }),
+  publishedDate: timestamp("published_date"),
+  newspaperImage: text("newspaper_image"),
+  pdfUrl: text("pdf_url"),
+  externalLink: text("external_link"),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  status: contentStatusEnum("status").default('published').notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type PressItem = typeof pressItems.$inferSelect;
+export type InsertPressItem = typeof pressItems.$inferInsert;
+
 export const htmlBlogPosts = pgTable("html_blog_posts", {
   id: serial("id").primaryKey(),
   slug: varchar("slug", { length: 500 }).unique().notNull(),

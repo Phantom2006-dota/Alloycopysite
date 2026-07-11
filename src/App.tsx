@@ -19,6 +19,7 @@ import Publishing from "./pages/Publishing";
 import Foundation from "./pages/Foundation";
 import Training from "./pages/Training";
 import Events from "./pages/Events";
+import Press from "./pages/Press";
 import NotFound from "./pages/NotFound";
 import Shop from "./pages/Shop";
 import ShopCategory from "./pages/ShopCategory";
@@ -39,6 +40,7 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminMedia from "./pages/admin/Media";
 import AdminTeam from "./pages/admin/Team";
 import AdminEvents from "./pages/admin/Events";
+import AdminPress from "./pages/admin/Press";
 import AdminSettings from "./pages/admin/Settings";
 import AdminUploads from "./pages/admin/Uploads";
 import AdminProducts from "./pages/admin/Products";
@@ -68,6 +70,7 @@ const App = () => (
               <Route path="/foundation" element={<Foundation />} />
               <Route path="/training" element={<Training />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/press" element={<Press />} />
               
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:category" element={<ShopCategory />} />
@@ -158,6 +161,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AdminEvents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/press"
+                element={
+                  <ProtectedRoute>
+                    <AdminPress />
                   </ProtectedRoute>
                 }
               />

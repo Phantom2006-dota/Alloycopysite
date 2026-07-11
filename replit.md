@@ -115,6 +115,7 @@ PostgreSQL database with Drizzle ORM:
 - **media_items**: Books, films, TV shows catalog
 - **team_members**: Company team members
 - **events**: Company events and screenings
+- **press_items**: Newspaper features and media mentions (public page + admin CRUD, with image and PDF uploads via Cloudinary)
 - **uploads**: Media library for uploaded files
 
 ### Backend API
@@ -165,6 +166,7 @@ Located at `/admin`:
 - **Media**: `/admin/media` - Books, films, and TV shows catalog management
 - **Team**: `/admin/team` - Team member profiles management
 - **Events**: `/admin/events` - Event scheduling and management
+- **Press**: `/admin/press` - Newspaper feature and media mention management (image + PDF uploads)
 - **Uploads**: `/admin/uploads` - Media library for file uploads
 - **Settings**: `/admin/settings` - General CMS settings
 
@@ -175,6 +177,7 @@ The frontend pages now fetch content from the database:
 - **Film**: Shows film catalog from database with fallback content
 - **TV**: Shows TV shows from database with fallback content
 - **Events**: Shows upcoming and past events from database
+- **Press**: `/press` - Public press page showing published newspaper features and media mentions
 
 ### Blog Frontend
 Public-facing blog pages:
@@ -197,4 +200,5 @@ All endpoints are prefixed with `/api`:
 - **Media Items**: `/api/media` - Books, films, TV content
 - **Team**: `/api/team` - Team members
 - **Events**: `/api/events`
+- **Press**: `/api/press` - Newspaper features/media mentions; public routes are published-only, delete is `super_admin`-only
 - **Uploads**: `/api/uploads` - Media library with Cloudinary
