@@ -19,10 +19,6 @@ primary_region = 'ams'
   min_machines_running = 0
   processes = ['app']
 
-[[mounts]]
-  source = 'uploads_data'
-  destination = '/app/uploads'
-
 [[vm]]
   memory = '512mb'
   cpu_kind = 'shared'
