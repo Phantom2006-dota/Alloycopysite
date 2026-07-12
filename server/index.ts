@@ -145,6 +145,47 @@ app.get("/api/health", (_req: Request, res: Response) => {
   });
 });
 
+// Diagnostics for the local-disk uploads directory (thumbnails, etc.).
+// Use this in production to confirm the uploads dir exists, is writable,
+// and that files survive across requests/restarts (Fly.io machines wipe
+// unmounted disk on every deploy/restart unless a volume is mounted at
+// this path — see fly.toml [[mounts]]).
+app.get("/api/debug/uploads", (_req: Request, res: Response) => {
+  const uploadsDir = path.resolve(__dirname, "../uploads");
+  const thumbsDir = path.join(uploadsDir, "thumbnails");
+  const info: Record<string, any> = {
+    uploadsDir,
+    uploadsDirExists: fs.existsSync(uploadsDir),
+    thumbsDir,
+    thumbsDirExists: fs.existsSync(thumbsDir),
+  };
+
+  try {
+    if (info.thumbsDirExists) {
+      const files = fs.readdirSync(thumbsDir);
+      info.thumbnailFileCount = files.length;
+      info.thumbnailFiles = files.slice(0, 20).map((name) => {
+        const stat = fs.statSync(path.join(thumbsDir, name));
+        return { name, sizeBytes: stat.size, modifiedAt: stat.mtime.toISOString() };
+      });
+    } else {
+      info.thumbnailFileCount = 0;
+      info.thumbnailFiles = [];
+    }
+
+    const probeFile = path.join(uploadsDir, `.write-test-${Date.now()}`);
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    fs.writeFileSync(probeFile, "ok");
+    fs.unlinkSync(probeFile);
+    info.writable = true;
+  } catch (error: any) {
+    info.writable = false;
+    info.writeError = error.message;
+  }
+
+  res.json(info);
+});
+
 const apiRoutesToExclude = ["/api/payments/callback", "/payments/callback", "/api/health", "/health", "/api/stripe/webhook", "/api/html-blog/ping", "/api/html-blog"];
 
 const conditionalValidateApiKey = (req: Request, res: Response, next: NextFunction) => {

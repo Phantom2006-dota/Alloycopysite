@@ -39,9 +39,16 @@ function saveThumbnail(buffer: Buffer, originalName: string): string {
   const ext = path.extname(originalName) || ".jpg";
   const filename = `thumb-${Date.now()}${ext}`;
   const dir = path.resolve(__dirname, "../../uploads/thumbnails");
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, filename), buffer);
-  return `/uploads/thumbnails/${filename}`;
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const filePath = path.join(dir, filename);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`[html-blog] saved thumbnail: ${filePath} (${buffer.length} bytes)`);
+    return `/uploads/thumbnails/${filename}`;
+  } catch (error: any) {
+    console.error(`[html-blog] FAILED to save thumbnail to ${dir}:`, error.message);
+    throw new Error(`Could not save thumbnail: ${error.message}`);
+  }
 }
 
 router.get("/ping", (_req: Request, res: Response) => {
