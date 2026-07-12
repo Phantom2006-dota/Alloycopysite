@@ -160,6 +160,38 @@ router.post(
   }
 );
 
+router.put(
+  "/:slug/thumbnail",
+  authenticateToken,
+  htmlUpload.fields([{ name: "thumbnail", maxCount: 1 }]),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { slug } = req.params;
+      const files = req.files as Record<string, Express.Multer.File[]>;
+      if (!files?.thumbnail?.[0]) return res.status(400).json({ message: "No thumbnail image provided" });
+
+      const existing = await db
+        .select({ id: htmlBlogPosts.id })
+        .from(htmlBlogPosts)
+        .where(eq(htmlBlogPosts.slug, slug))
+        .limit(1);
+      if (existing.length === 0) return res.status(404).json({ message: "Post not found" });
+
+      const thumbnailUrl = saveThumbnail(files.thumbnail[0].buffer, files.thumbnail[0].originalname);
+
+      const updated = await db
+        .update(htmlBlogPosts)
+        .set({ thumbnailUrl, updatedAt: new Date() })
+        .where(eq(htmlBlogPosts.slug, slug))
+        .returning();
+
+      res.json({ message: "Thumbnail updated", post: updated[0] });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
 router.delete("/:slug", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { slug } = req.params;

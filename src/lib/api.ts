@@ -714,6 +714,8 @@ export const api = {
     getBySlug: (slug: string) => request<any>(`/html-blog/${slug}`),
     upload: (formData: FormData) =>
       apiRequest<any>("/html-blog", { method: "POST", body: formData }),
+    updateThumbnail: (slug: string, formData: FormData) =>
+      apiRequest<any>(`/html-blog/${slug}/thumbnail`, { method: "PUT", body: formData }),
     remove: (slug: string) =>
       apiRequest<any>(`/html-blog/${slug}`, { method: "DELETE" }),
   },

@@ -34,6 +34,9 @@ export default function AdminHtmlBlog() {
   const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
+  const [thumbnailEditSlug, setThumbnailEditSlug] = useState<string | null>(null);
+  const thumbnailEditInputRef = useRef<HTMLInputElement>(null);
+
   const { data: posts = [], isLoading } = useQuery<HtmlPost[]>({
     queryKey: ["html-blog-posts"],
     queryFn: () => api.htmlBlog.list(),
@@ -49,6 +52,18 @@ export default function AdminHtmlBlog() {
     onError: (err: any) => toast.error(err.message || "Upload failed"),
   });
 
+  const thumbnailMutation = useMutation({
+    mutationFn: (formData: FormData) =>
+      api.htmlBlog.updateThumbnail(thumbnailEditSlug as string, formData),
+    onSuccess: () => {
+      toast.success("Thumbnail updated");
+      queryClient.invalidateQueries({ queryKey: ["html-blog-posts"] });
+      setThumbnailEditSlug(null);
+      if (thumbnailEditInputRef.current) thumbnailEditInputRef.current.value = "";
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update thumbnail"),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (slug: string) => api.htmlBlog.remove(slug),
     onSuccess: () => {
@@ -57,6 +72,19 @@ export default function AdminHtmlBlog() {
     },
     onError: (err: any) => toast.error(err.message || "Failed to delete post"),
   });
+
+  const handleThumbnailButtonClick = (slug: string) => {
+    setThumbnailEditSlug(slug);
+    setTimeout(() => thumbnailEditInputRef.current?.click(), 0);
+  };
+
+  const handleThumbnailEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !thumbnailEditSlug) return;
+    const formData = new FormData();
+    formData.append("thumbnail", file);
+    thumbnailMutation.mutate(formData);
+  };
 
   const resetForm = () => {
     setTitle("");
@@ -317,6 +345,17 @@ export default function AdminHtmlBlog() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleThumbnailButtonClick(post.slug)}
+                      disabled={thumbnailMutation.isPending && thumbnailEditSlug === post.slug}
+                    >
+                      <Image className="h-3.5 w-3.5 mr-1" />
+                      {thumbnailMutation.isPending && thumbnailEditSlug === post.slug
+                        ? "Uploading..."
+                        : "Change Thumbnail"}
+                    </Button>
                     <Button variant="outline" size="sm" asChild>
                       <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-3.5 w-3.5 mr-1" />
@@ -342,6 +381,14 @@ export default function AdminHtmlBlog() {
             ))}
           </div>
         )}
+
+        <input
+          ref={thumbnailEditInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleThumbnailEditChange}
+        />
       </div>
     </AdminLayout>
   );
