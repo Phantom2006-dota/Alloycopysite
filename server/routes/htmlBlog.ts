@@ -1,15 +1,10 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
 import { db } from "../db";
 import { htmlBlogPosts } from "../../shared/schema";
 import { eq } from "drizzle-orm";
 import { authenticateToken, AuthRequest } from "../middleware/auth";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { uploadToCloudinary } from "../lib/cloudinary";
 
 const router = Router();
 
@@ -35,19 +30,17 @@ const htmlUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-function saveThumbnail(buffer: Buffer, originalName: string): string {
-  const ext = path.extname(originalName) || ".jpg";
-  const filename = `thumb-${Date.now()}${ext}`;
-  const dir = path.resolve(__dirname, "../../uploads/thumbnails");
+async function saveThumbnail(buffer: Buffer): Promise<string> {
   try {
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    const filePath = path.join(dir, filename);
-    fs.writeFileSync(filePath, buffer);
-    console.log(`[html-blog] saved thumbnail: ${filePath} (${buffer.length} bytes)`);
-    return `/uploads/thumbnails/${filename}`;
+    const result = await uploadToCloudinary(buffer, {
+      folder: "bauhaus-cms/html-blog",
+      resource_type: "image",
+    });
+    console.log(`[html-blog] uploaded thumbnail to Cloudinary: ${result.secure_url}`);
+    return result.secure_url;
   } catch (error: any) {
-    console.error(`[html-blog] FAILED to save thumbnail to ${dir}:`, error.message);
-    throw new Error(`Could not save thumbnail: ${error.message}`);
+    console.error(`[html-blog] FAILED to upload thumbnail to Cloudinary:`, error.message);
+    throw new Error(`Could not upload thumbnail: ${error.message}`);
   }
 }
 
@@ -119,7 +112,7 @@ router.post(
 
       let thumbnailUrl: string | null = null;
       if (files?.thumbnail?.[0]) {
-        thumbnailUrl = saveThumbnail(files.thumbnail[0].buffer, files.thumbnail[0].originalname);
+        thumbnailUrl = await saveThumbnail(files.thumbnail[0].buffer);
       }
 
       const existing = await db
@@ -184,7 +177,7 @@ router.put(
         .limit(1);
       if (existing.length === 0) return res.status(404).json({ message: "Post not found" });
 
-      const thumbnailUrl = saveThumbnail(files.thumbnail[0].buffer, files.thumbnail[0].originalname);
+      const thumbnailUrl = await saveThumbnail(files.thumbnail[0].buffer);
 
       const updated = await db
         .update(htmlBlogPosts)
