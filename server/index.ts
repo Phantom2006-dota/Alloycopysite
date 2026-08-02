@@ -46,16 +46,44 @@ app.post(
   "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
   async (req: Request, res: Response) => {
+    const ts = new Date().toISOString();
+    console.log(`\n[STRIPE WEBHOOK] ── ${ts} ──────────────────────────`);
+    console.log(`[STRIPE WEBHOOK] Content-Type : ${req.headers["content-type"]}`);
+    console.log(`[STRIPE WEBHOOK] Body type    : ${typeof req.body} | isBuffer: ${Buffer.isBuffer(req.body)} | length: ${req.body?.length ?? 0}`);
+
     const signature = req.headers["stripe-signature"];
-    if (!signature) return res.status(400).json({ error: "Missing stripe-signature" });
+    if (!signature) {
+      console.error("[STRIPE WEBHOOK] ❌ Missing stripe-signature header — Stripe did not send this or the header was stripped by a proxy");
+      return res.status(400).json({ error: "Missing stripe-signature" });
+    }
+    console.log(`[STRIPE WEBHOOK] Signature    : ${String(signature).substring(0, 60)}…`);
+
+    // Check webhook secret availability before attempting verification
+    const hasWebhookSecret = !!(process.env.STRIPE_WEBHOOK_SECRET);
+    console.log(`[STRIPE WEBHOOK] Webhook secret configured: ${hasWebhookSecret}`);
+    if (!hasWebhookSecret) {
+      console.error("[STRIPE WEBHOOK] ❌ STRIPE_WEBHOOK_SECRET is not set — signature verification will fail");
+    }
+
     try {
       const sig = Array.isArray(signature) ? signature[0] : signature;
       await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+      console.log(`[STRIPE WEBHOOK] ✅ Processed successfully`);
       res.status(200).json({ received: true });
     } catch (error: any) {
-      console.error("Stripe webhook error:", error.message);
-      res.status(400).json({ error: "Webhook processing error" });
+      console.error(`[STRIPE WEBHOOK] ❌ Error: ${error.message}`);
+      if (error.message?.includes("No signatures found")) {
+        console.error("[STRIPE WEBHOOK]    → Signature mismatch. Common causes:");
+        console.error("[STRIPE WEBHOOK]      1. STRIPE_WEBHOOK_SECRET doesn't match the endpoint secret in Stripe Dashboard");
+        console.error("[STRIPE WEBHOOK]      2. Request body was parsed (not raw Buffer) before reaching this handler");
+        console.error("[STRIPE WEBHOOK]      3. A reverse proxy modified the body before forwarding");
+      }
+      if (error.message?.includes("Timestamp outside")) {
+        console.error("[STRIPE WEBHOOK]    → Timestamp too old — Stripe replays must arrive within 300s");
+      }
+      res.status(400).json({ error: "Webhook processing error", detail: error.message });
     }
+    console.log(`[STRIPE WEBHOOK] ────────────────────────────────────────\n`);
   }
 );
 
@@ -133,6 +161,45 @@ app.post("/api/debug/echo", (req: Request, res: Response) => {
   });
 });
 } // end development-only debug routes
+
+// Stripe diagnostic endpoint — available in all environments
+app.get("/api/stripe/debug", async (_req: Request, res: Response) => {
+  const result: Record<string, any> = {
+    timestamp: new Date().toISOString(),
+    env: {
+      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
+        ? `${process.env.STRIPE_SECRET_KEY.substring(0, 8)}… (${process.env.STRIPE_SECRET_KEY.startsWith('sk_live') ? 'LIVE' : 'TEST'} key)`
+        : "❌ NOT SET",
+      STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET
+        ? `${process.env.STRIPE_WEBHOOK_SECRET.substring(0, 10)}… (set)`
+        : "❌ NOT SET",
+      DATABASE_URL: process.env.DATABASE_URL ? "✅ set" : "❌ NOT SET",
+    },
+    stripeClientTest: null as any,
+    webhookEndpointUrl: "POST /api/stripe/webhook",
+    notes: [] as string[],
+  };
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    result.notes.push("STRIPE_SECRET_KEY is missing — all payment routes will fail");
+  }
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    result.notes.push("STRIPE_WEBHOOK_SECRET is missing — webhook signature verification will fail");
+  }
+
+  try {
+    const { getUncachableStripeClient } = await import("./stripeClient");
+    const stripe = await getUncachableStripeClient();
+    // Make a lightweight API call to verify the key actually works
+    const account = await (stripe as any).accounts ? null : await stripe.balance.retrieve().catch(() => null);
+    result.stripeClientTest = { ok: true, note: "Stripe client initialised successfully" };
+  } catch (e: any) {
+    result.stripeClientTest = { ok: false, error: e.message };
+    result.notes.push(`Stripe client error: ${e.message}`);
+  }
+
+  res.json(result);
+});
 
 app.get("/api/health", (_req: Request, res: Response) => {
   console.log("🏥 Health check called");

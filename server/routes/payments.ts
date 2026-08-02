@@ -6,10 +6,14 @@ import { getUncachableStripeClient } from "../stripeClient";
 const router = Router();
 
 router.post("/create-checkout-session", async (req: Request, res: Response) => {
+  const ts = new Date().toISOString();
+  console.log(`\n[STRIPE CHECKOUT] ── ${ts} ──────────────────────────`);
   try {
     const { email, name, phone, productId } = req.body;
+    console.log(`[STRIPE CHECKOUT] Request body — productId: ${productId}, email: ${email ? '✅' : '❌ missing'}, name: ${name ? '✅' : '❌ missing'}`);
 
     if (!productId || !email || !name) {
+      console.warn(`[STRIPE CHECKOUT] ❌ Validation failed — missing required fields`);
       return res.status(400).json({ message: "Product ID, email, and name are required" });
     }
 
@@ -18,22 +22,27 @@ router.post("/create-checkout-session", async (req: Request, res: Response) => {
     );
 
     if (!productResult.rows || productResult.rows.length === 0) {
+      console.warn(`[STRIPE CHECKOUT] ❌ Product not found — id: ${productId}`);
       return res.status(404).json({ message: "Product not found or unavailable" });
     }
 
     const product = productResult.rows[0] as {
       id: number; title: string; price: number; is_in_stock: boolean;
     };
+    console.log(`[STRIPE CHECKOUT] Product found — "${product.title}" price: ${product.price} (pence) in_stock: ${product.is_in_stock}`);
 
     if (!product.is_in_stock) {
+      console.warn(`[STRIPE CHECKOUT] ❌ Product out of stock — id: ${productId}`);
       return res.status(400).json({ message: "This product is currently out of stock" });
     }
 
+    console.log(`[STRIPE CHECKOUT] Initialising Stripe client…`);
     const stripe = await getUncachableStripeClient();
 
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
     const host = req.get('host') || 'localhost:5000';
     const baseUrl = `${protocol}://${host}`;
+    console.log(`[STRIPE CHECKOUT] Base URL for redirects: ${baseUrl}`);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -62,9 +71,14 @@ router.post("/create-checkout-session", async (req: Request, res: Response) => {
       },
     });
 
+    console.log(`[STRIPE CHECKOUT] ✅ Session created — id: ${session.id} | url: ${session.url?.substring(0, 60)}…`);
+    console.log(`[STRIPE CHECKOUT] ────────────────────────────────────────\n`);
     res.json({ status: "success", url: session.url });
   } catch (error: any) {
-    console.error("Stripe checkout session error:", error);
+    console.error(`[STRIPE CHECKOUT] ❌ Error: ${error.message}`);
+    if (error.type) console.error(`[STRIPE CHECKOUT]    Stripe error type: ${error.type}`);
+    if (error.code) console.error(`[STRIPE CHECKOUT]    Stripe error code: ${error.code}`);
+    console.log(`[STRIPE CHECKOUT] ────────────────────────────────────────\n`);
     res.status(500).json({ message: "Failed to create checkout session", error: error.message });
   }
 });

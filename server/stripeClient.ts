@@ -9,6 +9,8 @@ async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecre
       ? "depl " + process.env.WEB_REPL_RENEWAL
       : null;
 
+  console.log(`[STRIPE CLIENT] Resolving credentials — Replit connector hostname: ${hostname ? 'present' : 'absent'}`);
+
   if (hostname && xReplitToken) {
     try {
       const resp = await fetch(
@@ -22,19 +24,27 @@ async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecre
         const data = await resp.json();
         const settings = data.items?.[0]?.settings;
         if (settings?.secret_key) {
+          console.log(`[STRIPE CLIENT] ✅ Credentials from Replit connector | webhook secret: ${settings.webhook_secret ? 'present' : 'absent'}`);
           return { secretKey: settings.secret_key, webhookSecret: settings.webhook_secret };
         }
+        console.warn('[STRIPE CLIENT] Replit connector responded but secret_key missing in payload');
+      } else {
+        console.warn(`[STRIPE CLIENT] Replit connector HTTP ${resp.status} — falling back to env var`);
       }
-    } catch (e) {
-      console.warn('Replit Stripe connector unavailable, falling back to env var');
+    } catch (e: any) {
+      console.warn(`[STRIPE CLIENT] Replit connector unavailable (${e.message}) — falling back to env var`);
     }
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (secretKey) {
-    return { secretKey, webhookSecret: process.env.STRIPE_WEBHOOK_SECRET };
+    const keyPreview = secretKey.startsWith('sk_live') ? 'sk_live_…' : secretKey.startsWith('sk_test') ? 'sk_test_…' : '(unrecognised prefix)';
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    console.log(`[STRIPE CLIENT] ✅ Credentials from env var | key: ${keyPreview} | webhook secret: ${webhookSecret ? 'present' : '❌ absent'}`);
+    return { secretKey, webhookSecret };
   }
 
+  console.error('[STRIPE CLIENT] ❌ No Stripe credentials found — neither Replit connector nor STRIPE_SECRET_KEY env var is set');
   throw new Error(
     'Stripe not configured. Connect Stripe via the Integrations tab or set STRIPE_SECRET_KEY.'
   );
