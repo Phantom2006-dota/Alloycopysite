@@ -17,6 +17,7 @@ import productCategoriesRoutes from "./routes/productCategories";
 import paymentsRoutes from "./routes/payments";
 import htmlBlogRoutes from "./routes/htmlBlog";
 import pressRoutes from "./routes/press";
+import sitemapRouter from "./routes/sitemap";
 import { WebhookHandlers } from "./webhookHandlers";
 import fs from "fs";
 import { validateApiKey, checkApiKeyConfigured } from "./middleware/apiKey";
@@ -293,6 +294,7 @@ app.use("/api/product-categories", productCategoriesRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/html-blog", htmlBlogRoutes);
 app.use("/api/press", pressRoutes);
+app.use("/sitemap.xml", sitemapRouter);
 
 
 if (process.env.NODE_ENV === "development") {
